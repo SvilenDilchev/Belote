@@ -15,7 +15,6 @@
 
 .Col {
     height: 100%;
-    width: 33.33%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -52,7 +51,7 @@
  * Scoreboard
  */
 
-#tlCol{
+#tlCell {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -68,7 +67,7 @@
     margin-left: 1vh;
 }
 
-.ScoreboardRow{
+.ScoreboardRow {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -89,4 +88,75 @@
     color: black;
     margin-bottom: 5px;
     margin-top: 5px;
+}
+
+/*
+ * Hand
+ */
+
+.DeckHold {
+    display: flex;
+    align-items: flex-end;
+}
+
+.MyCard {
+    margin: 5px;
+    background-color: wheat;
+    width: 10vh;
+    height: 15vh;
+    border: 3px solid black;
+    border-radius: 10px;
+
+    display: flex;
+    color: black;
+    justify-content: center;
+    align-items: center;
+    transition: transform ease 0.5s;
+    z-index: 1;
+}
+
+.MyCard:hover {
+    cursor: pointer;
+    transform: translateY(-3vh);
+    background-color: #d4cc7e;
+}
+
+.OpponentCard{
+    margin: -20px;
+    background-color: wheat;
+    width: 9vh;
+    height: 12vh;
+    border: 3px solid black;
+    border-radius: 10px;
+
+    display: flex;
+    color: black;
+    justify-content: center;
+    align-items: center;
+}
+
+.DeckHold.North{
+    -webkit-transform: rotateX(180deg);
+            transform: rotateX(180deg);
+    margin-top: 20px;
+    margin-bottom: auto;   
+}
+
+.DeckHold.West{
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.DeckHold.East{
+    -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg);
+    margin-right: auto;
+    margin-left: 20px;
+}
+
+.DeckHold.South{
+    margin-top: auto;
+    margin-bottom: 20px;
 }

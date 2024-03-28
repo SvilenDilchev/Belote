@@ -5,7 +5,6 @@ import HomePage from './pages/HomePage';
 import RoomPage from './pages/RoomPage';
 import NoPage from './pages/NoPage';
 import { SocketContext, socket } from './context/socket';
-import Header from './components/Header';
 
 function App() {
   const [rooms, setRooms] = useState(new Map());

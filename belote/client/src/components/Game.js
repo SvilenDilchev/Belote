@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import Scoreboard from './Scoreboard';
+import {SouthPlayerDeck, OtherPlayerDeck} from './PlayerDecks';
 import '../css/Game.css';
 
 class Game extends Component {
@@ -19,35 +20,35 @@ class Game extends Component {
                     <div className='PageTitle'> BELOTE </div>
                 </div>
                 <div className='Row' id='TopRow'>
-                    <div className='Col LeftCol' id='tlCol'>
+                    <div className='Col LeftCol' id='tlCell'>
                         <Scoreboard usScore={this.state.usScore} themScore={this.state.themScore} />
                     </div>
-                    <div className='Col MidCol' id='tmCol'>
-                        tm
+                    <div className='Col MidCol' id='tmCell'>
+                        <OtherPlayerDeck position={"North"}/>
                     </div>
-                    <div className='Col RightCol' id='trCol'>
+                    <div className='Col RightCol' id='trCell'>
                         tr
                     </div>
                 </div>
                 <div className='Row' id='MidRow'>
-                    <div className='Col LeftCol' id='mlCol'>
-                        ml
+                    <div className='Col LeftCol' id='mlCell'>
+                        <OtherPlayerDeck position={"West"}/>
                     </div>
-                    <div className='Col MidCol' id='mmCol'>
+                    <div className='Col MidCol' id='mmCell'>
                         mm
                     </div>
-                    <div className='Col RightCol' id='mrCol'>
-                        mr
+                    <div className='Col RightCol' id='mrCell'>
+                        <OtherPlayerDeck position={"East"}/>
                     </div>
                 </div>
                 <div className='Row' id='BotRow'>
-                    <div className='Col LeftCol' id='blCol'>
+                    <div className='Col LeftCol' id='blCell'>
                         bl
                     </div>
-                    <div className='Col MidCol' id='bmCol'>
-                        bm
+                    <div className='Col MidCol' id='bmCell'>
+                        <SouthPlayerDeck />
                     </div>
-                    <div className='Col RightCol' id='brCol'>
+                    <div className='Col RightCol' id='brCell'>
                         br
                     </div>
                 </div>
