@@ -13,7 +13,7 @@
     color: white;
 }
 
-.Col{
+.Col {
     height: 100%;
     width: 33.33%;
     display: flex;
@@ -30,32 +30,63 @@
     flex-direction: column;
 }
 
-#TopRow {
-    height: 30%;
-    /* background-color: rgb(228, 211, 162); */
-}
-
-#MidRow {
-    height: 30%;
-    /* background-color: rgb(238, 207, 114); */
-}
-
+#TopRow,
+#MidRow,
 #BotRow {
     height: 30%;
-    /* background-color: rgb(230, 185, 53); */
 }
 
-#LeftCol {
+.Col.LeftCol {
     width: 25%;
-    /* background-color: rgb(228, 211, 162); */
 }
 
-#MidCol {
+.Col.MidCol {
     width: 50%;
-    /* background-color: rgb(238, 207, 114); */
 }
 
-#RightCol {
+.Col.RightCol {
     width: 25%;
-    /* background-color: rgb(230, 185, 53); */
+}
+
+/*
+ * Scoreboard
+ */
+
+#tlCol{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.Scoreboard {
+    height: 15vh;
+    width: 15vh;
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 20%;
+    margin-top: 1vh;
+    margin-left: 1vh;
+}
+
+.ScoreboardRow{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#scoreboardTitle {
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    margin: 5px;
+}
+
+#usScore,
+#themScore {
+    font-size: 20px;
+    font-weight: 500;
+    color: black;
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
