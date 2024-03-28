@@ -1,0 +1,46 @@
+.Container{
+    text-align: center;
+    vertical-align: middle;
+    transform: translate(0%, 40%);
+}
+
+.PageTitle{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 70px;
+    font-weight: bolder;
+    color: white;
+ }
+
+ .inputField{
+    width: 25%;
+    height: 15%;
+    padding: 2%;
+    font-size: 25px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+ }
+
+ .joinButton{
+    width: 20%;
+    height: auto;
+    font-size: 25px;
+    border-radius: 20px;
+    padding: 2%;
+ }
+
+ .joinButton:hover{
+    background-color: lightgray;
+    cursor: pointer;
+ }
+
+ .systemResponse{
+    font-size: 25px;
+    color: white;
+    padding-top: 2%;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+ }
+ 
+ .systemResponse.active{
+    opacity: 1;
+ }

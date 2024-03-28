@@ -1,0 +1,86 @@
+.OuterContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 80vh;
+}
+
+.ContainerWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.RoomContainer {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.RoomBox {
+    width: 200px;
+    height: 50%;
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 20px;
+}
+
+.RoomLabel {
+    font-size: 25px;
+    font-weight: bold;
+    color: black;
+    margin: 5px;
+}
+
+.RoomID {
+    font-size: 20px;
+    font-weight: 500;
+    color: black;
+    margin-bottom: 10px;
+}
+
+.ButtonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 20px;
+}
+
+.StartGameLabel {
+    font-size: 25px;
+    font-weight: bold;
+    color: black;
+    margin: 5px;
+}
+
+.StartGameButton{
+    background-color: #970e0e;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border: 1px solid black;
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.StartGameButton.active{
+    background-color: #4CAF50;
+}
+
+.StartGameButton.active:hover {
+    background-color: #45a049;
+}
+
+.Game {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 80vh;
+}
