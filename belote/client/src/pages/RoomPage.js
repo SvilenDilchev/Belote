@@ -2,6 +2,7 @@ import { useEffect, useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SocketContext } from "../context/socket";
 import PlayerList from "../components/PlayerList";
+import Game from "../components/Game";
 import '../css/RoomPage.css';
 
 export default function RoomPage({ rooms, setRooms }) {
@@ -52,7 +53,7 @@ export default function RoomPage({ rooms, setRooms }) {
         return () => {
             socket.off('update_players', handleUpdatePlayers);
         };
-    }, [socket]);
+    }, [socket, location.state.roomID, rooms]);
 
     if (!room) {
         return <div>Loading...</div>;
@@ -61,6 +62,9 @@ export default function RoomPage({ rooms, setRooms }) {
     return (
         (!isGameStarted) ? (
             <div className="OuterContainer">
+                <div className="ContainerWrapper">
+                    <div className='PageTitle'> BELOTE </div>
+                </div>
                 <div className="ContainerWrapper">
                     <div className="RoomContainer">
                         <div className="RoomBox">
@@ -82,7 +86,7 @@ export default function RoomPage({ rooms, setRooms }) {
                 </div>
             </div>
         ) : (
-            <div className="Game"></div>
+            <Game />
         )
     );
 }

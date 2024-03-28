@@ -13,6 +13,7 @@
 }
 
 .RoomContainer {
+    margin-top: 20px;
     text-align: center;
     vertical-align: middle;
 }
@@ -77,10 +78,9 @@
     background-color: #45a049;
 }
 
-.Game {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    height: 80vh;
-}
+.PageTitle{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 30px;
+    font-weight: bolder;
+    color: rgb(243, 233, 202);
+ }

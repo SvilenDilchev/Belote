@@ -1,0 +1,61 @@
+.Game {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.Row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+}
+
+.Col{
+    height: 100%;
+    width: 33.33%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#TitleRow {
+    height: 10%;
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#TopRow {
+    height: 30%;
+    /* background-color: rgb(228, 211, 162); */
+}
+
+#MidRow {
+    height: 30%;
+    /* background-color: rgb(238, 207, 114); */
+}
+
+#BotRow {
+    height: 30%;
+    /* background-color: rgb(230, 185, 53); */
+}
+
+#LeftCol {
+    width: 25%;
+    /* background-color: rgb(228, 211, 162); */
+}
+
+#MidCol {
+    width: 50%;
+    /* background-color: rgb(238, 207, 114); */
+}
+
+#RightCol {
+    width: 25%;
+    /* background-color: rgb(230, 185, 53); */
+}

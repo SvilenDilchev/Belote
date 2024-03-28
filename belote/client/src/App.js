@@ -11,7 +11,7 @@ function App() {
   const [rooms, setRooms] = useState(new Map());
 
   return (
-    <div>
+    <div id='base'>
       {/* <Header /> */}
       <SocketContext.Provider value={socket}>
         <BrowserRouter>
