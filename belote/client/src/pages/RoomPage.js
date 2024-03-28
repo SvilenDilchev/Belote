@@ -13,6 +13,7 @@ export default function RoomPage({ rooms, setRooms }) {
     const [room, setRoom] = useState(null);
     const [players, setPlayers] = useState([]);
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [canStartGame, setCanStartGame] = useState(false);
 
     const startGame = () => {
         socket.emit('start_game');
@@ -20,7 +21,6 @@ export default function RoomPage({ rooms, setRooms }) {
     }
 
     const handleStartGame = () => {
-        console.log("received setup_game")
         setIsGameStarted(true);
     };
 
@@ -46,6 +46,12 @@ export default function RoomPage({ rooms, setRooms }) {
         const handleUpdatePlayers = (newPlayers) => {
             setRoom(rooms.get(location.state.roomID));
             setPlayers(newPlayers);
+            if (newPlayers.length === 0) {
+                setIsGameStarted(false);
+                setRooms(new Map(rooms).delete(location.state.roomID));
+            }
+
+            setCanStartGame(newPlayers.length === 4 && rooms.get(location.state.roomID).owner.socketID === socket.id);
         };
 
         socket.on('update_players', handleUpdatePlayers);
@@ -53,7 +59,25 @@ export default function RoomPage({ rooms, setRooms }) {
         return () => {
             socket.off('update_players', handleUpdatePlayers);
         };
-    }, [socket, location.state.roomID, rooms]);
+    }, [socket, location.state.roomID, rooms, setRooms]);
+
+    useEffect(() => {
+        const handleUpdateRoom = (newRoom) => {
+            if(newRoom.players.length === 0){
+                setRooms(prevRooms => new Map(prevRooms).delete(newRoom.roomID));
+                navigate('/');
+            }
+            setRoom(newRoom);
+            setRooms(prevRooms => new Map(prevRooms).set(newRoom.roomID, newRoom));
+        };
+    
+        socket.on('update_room', handleUpdateRoom);
+    
+        return() => {
+            socket.off('update_room', handleUpdateRoom);
+        };
+    }, [socket, setRooms, rooms, navigate]);
+    
 
     if (!room) {
         return <div>Loading...</div>;
@@ -78,10 +102,13 @@ export default function RoomPage({ rooms, setRooms }) {
                 </div>
                 <div className="ContainerWrapper">
                     <div className="ButtonContainer">
-                        <div className={`StartGameLabel ${(players.length === 4 && rooms.get(location.state.roomID).owner.socketID === socket.id) ? 'active' : ''}`}>
+                        <div className={`StartGameLabel ${canStartGame ? 'active' : ''}`}>
                             Start Game
                         </div>
-                        <div className={`StartGameButton ${(players.length === 4 && rooms.get(location.state.roomID).owner.socketID === socket.id) ? 'active' : ''}`} onClick={startGame}></div>
+                        <div
+                            className={`StartGameButton ${canStartGame ? 'active' : ''}`}
+                            onClick={canStartGame ? startGame : undefined}>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -13,14 +13,14 @@ class Scoreboard extends Component {
         return (
             <div className='Scoreboard' id='scoreboard'>
                 <div className='ScoreboardRow'>
-                    <div id='scoreboardTitle'>Score:</div>
+                    <div id='scoreboardTitle'>Score</div>
                 </div>
                 <hr></hr>
                 <div className='ScoreboardRow'>
-                    <div id='usScore'> Us: {this.state.usScore}</div>
+                    <div id='usScore'> Ние: {this.state.usScore}</div>
                 </div>
                 <div className='ScoreboardRow'>
-                    <div id='themScore'> Them: {this.state.themScore}</div>
+                    <div id='themScore'> Вие: {this.state.themScore}</div>
                 </div>
             </div>
         );

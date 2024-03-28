@@ -14,7 +14,14 @@ class SouthPlayerDeck extends Component {
             <div className="DeckHold South">
                 {
                     this.state.cards.map((card) => {
-                        return <div className="MyCard" key={card} id={`myCard${card}`}>{card}</div>
+                        return <div 
+                            className="MyCard" 
+                            key={card} 
+                            id={`myCard${card}`}
+                            style={{'zIndex': (10-card)}}
+                            >
+                                {card}
+                        </div>
                     })
                 }
             </div>
@@ -36,7 +43,12 @@ class OtherPlayerDeck extends Component {
         return (
             <div className={`DeckHold ${this.state.position}`}>
                 {this.state.cards.map((card) => {
-                    return <div className="OpponentCard" key={card}>{card}</div>
+                    return <div
+                        className="OpponentCard"
+                        key={card}
+                    >
+                        {card}
+                    </div>
                 })}
             </div>
         );

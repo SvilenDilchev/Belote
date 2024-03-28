@@ -64,7 +64,7 @@
     border: 3px solid black;
     border-radius: 20%;
     margin-top: 1vh;
-    margin-left: 1vh;
+    margin-left: 5vh;
 }
 
 .ScoreboardRow {
@@ -97,10 +97,12 @@
 .DeckHold {
     display: flex;
     align-items: flex-end;
+    /* position: relative; */
 }
 
 .MyCard {
-    margin: 5px;
+    margin: -2vh;
+    margin-bottom: 5px;
     background-color: wheat;
     width: 10vh;
     height: 15vh;
@@ -122,7 +124,7 @@
 }
 
 .OpponentCard{
-    margin: -20px;
+    margin: -3vh;
     background-color: wheat;
     width: 9vh;
     height: 12vh;
@@ -138,25 +140,72 @@
 .DeckHold.North{
     -webkit-transform: rotateX(180deg);
             transform: rotateX(180deg);
-    margin-top: 20px;
-    margin-bottom: auto;   
+    margin-top: 2vh;
+    margin-bottom: auto; 
 }
 
 .DeckHold.West{
     -webkit-transform: rotate(90deg);
             transform: rotate(90deg);
     margin-left: auto;
-    margin-right: 20px;
+    margin-right: 10vh;
 }
 
 .DeckHold.East{
     -webkit-transform: rotate(-90deg);
             transform: rotate(-90deg);
     margin-right: auto;
-    margin-left: 20px;
+    margin-left: 10vh;
 }
 
 .DeckHold.South{
     margin-top: auto;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
 }
+
+/* .DeckHold .OpponentCard:nth-child(1) {
+    transform: rotate(-30deg);
+    margin-left: -20vh;
+    margin-bottom: -6.3vh;
+}
+
+.DeckHold .OpponentCard:nth-child(2) {
+    transform: rotate(-22.5deg);
+    margin-left: -15vh;
+    margin-bottom: -3.6vh;
+}
+
+.DeckHold .OpponentCard:nth-child(3) {
+    transform: rotate(-15deg);
+    margin-left: -10vh;
+    margin-bottom: -2vh;
+}
+.DeckHold .OpponentCard:nth-child(4) {
+    transform: rotate(-7.5deg);
+    margin-left: -5vh;
+    margin-bottom: -1vh;
+}
+
+.DeckHold .OpponentCard:nth-child(5) {
+    transform: rotate(0deg);
+    margin-left: 0vh;
+    margin-bottom: -0.5vh;
+}
+
+.DeckHold .OpponentCard:nth-child(6) {
+    transform: rotate(7.5deg);
+    margin-left: 5vh;
+    margin-bottom: -1vh;
+}
+
+.DeckHold .OpponentCard:nth-child(7) {
+    transform: rotate(15deg);
+    margin-left: 10vh;
+    margin-bottom: -2.3vh;
+}
+
+.DeckHold .OpponentCard:nth-child(8) {
+    transform: rotate(22.5deg);
+    margin-left: 15vh;
+    margin-bottom: -4.5vh;
+} */

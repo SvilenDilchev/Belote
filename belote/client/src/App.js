@@ -17,7 +17,7 @@ function App() {
           <Routes>
             <Route index element={<HomePage rooms={rooms} setRooms={setRooms} />} />
             <Route path='/home' element={<HomePage rooms={rooms} setRooms={setRooms} />} />
-            <Route path='/room/:roomId' element={<RoomPage rooms={rooms} />} />
+            <Route path='/room/:roomId' element={<RoomPage rooms={rooms}  setRooms={setRooms}/>} />
             <Route path='*' element={<NoPage />} />
           </Routes>
         </BrowserRouter>

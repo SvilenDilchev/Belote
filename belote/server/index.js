@@ -38,9 +38,7 @@ io.on('connection', (socket) => {
             if (!activeRooms.has(data.roomID)) {
                 room = new Room(data.roomID);
                 room.owner = user;
-                console.log("room -- ", room)
                 activeRooms.set(data.roomID, room);
-                console.log("activeRooms -- ", activeRooms)
             } else {
                 room = activeRooms.get(data.roomID);
             }
@@ -50,6 +48,7 @@ io.on('connection', (socket) => {
             room.addPlayer(user);
 
             socket.emit('set_room', room);
+            socket.to(room.roomID).emit('update_room', room);
             socket.to(data.roomID).emit('update_players', room.players);
         } else {
             socket.emit('room_full');
@@ -58,16 +57,21 @@ io.on('connection', (socket) => {
 
     socket.on('start_game', () => {
         const room = activeRooms.get(user.roomID);
-        console.log('received start_game')
-        console.log("activeRooms -- ", activeRooms)
-        console.log("room -- ", room)
-        console.log(io.sockets.adapter.rooms.get(room.roomID))
         socket.to(user.roomID).emit('setup_game');
-        console.log('emitted setup_game')
     });
 
     socket.on('disconnect', () => {
+        const room = activeRooms.get(user.roomID);
+        if(room){
+            room.removePlayer(user);
+            socket.to(room.roomID).emit('update_room', room);
+            socket.to(room.roomID).emit('update_players', room.players);
+            if(room.players.length === 0){
+                activeRooms.delete(user.roomID);
+            }
+        }
         user.leaveRoom();
+
         console.log(`User disconnected -- ${socket.id}`);
     });
 });

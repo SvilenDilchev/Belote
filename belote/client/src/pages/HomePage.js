@@ -1,8 +1,9 @@
-import '../App.css';
-import '../css/HomePage.css';
-import { useContext, useEffect, useState } from 'react';
+import { useRef, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from '../context/socket';
+
+import '../App.css';
+import '../css/HomePage.css';
 
 export default function Home({ rooms, setRooms }) {
     const [username, setUsername] = useState('');
@@ -10,21 +11,19 @@ export default function Home({ rooms, setRooms }) {
     const [isRoomFull, setIsRoomFull] = useState(false);
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
+    const responseRef = useRef(null);
 
     const joinRoom = async () => {
-        if (username !== '' && room !== '' && !isRoomFull) {
+        if (username.trim() !== '' && room.trim() !== '' && !isRoomFull) {
             socket.emit('join_room', { roomID: room, playerName: username });
         } else {
-            document.getElementById("response").innerText = 'Please enter your name and a room code!';
-            setIsRoomFull(true);
-            await delay(3000);
-            setIsRoomFull(false);
+            handleRoomFull();
         }
     };
 
-    const delay = (delayInms) => {
+    const delay = useCallback((delayInms) => {
         return new Promise(resolve => setTimeout(resolve, delayInms));
-    };
+    }, []);
 
     useEffect(() => {
         const handleSetRoom = (room) => {
@@ -41,20 +40,21 @@ export default function Home({ rooms, setRooms }) {
         };
     }, [rooms, navigate, setRooms, socket]);
 
+    const handleRoomFull = useCallback(async () => {
+        responseRef.current.innerText = 'Room is full, try another one!';
+        setIsRoomFull(true);
+        await delay(3000);
+        setIsRoomFull(false);
+    }, [responseRef, setIsRoomFull, delay]);
+
     useEffect(() => {
-        const handleRoomFull = async () => {
-            document.getElementById("response").innerText = 'Room is full, try another one!';
-            setIsRoomFull(true);
-            await delay(3000);
-            setIsRoomFull(false);
-        };
 
         socket.on('room_full', handleRoomFull);
 
         return () => {
             socket.off('room_full', handleRoomFull);
         };
-    }, [socket]);
+    }, [socket, handleRoomFull]);
 
     return (
         <div className="Container">
@@ -82,7 +82,7 @@ export default function Home({ rooms, setRooms }) {
             />
             <br />
             <button className='joinButton' onClick={joinRoom}>Join</button>
-            <div className={`systemResponse ${isRoomFull && 'active'}`} id="response">Room is full, try another one!</div>
+            <div className={`systemResponse ${isRoomFull && 'active'}`} ref={responseRef} id="response">Room is full, try another one!</div>
         </div>
     );
 }
