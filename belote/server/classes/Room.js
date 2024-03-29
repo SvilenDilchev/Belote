@@ -23,14 +23,12 @@ class Room{
             if(this.players.length > 1){
                 this.players = this.players.filter(p => p.socketID !== player.socketID);
                 this.owner = this.players[0];
-                this.owner.makeOwner();
                 console.log("new owner: ", this.players[0])
             }else{
                 console.log("room is empty");
                 this.players = [];
                 this.owner = null;
             }
-            player.isRoomOwner = false;
         }      
     }
 }

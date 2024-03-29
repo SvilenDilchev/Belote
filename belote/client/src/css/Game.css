@@ -63,7 +63,7 @@
     height: auto;
     background-color: white;
     border: 3px solid black;
-    border-radius: 20%;
+    border-radius: 20px;
     margin-top: 1vh;
     margin-left: 5vh;
     padding: 1vh;
@@ -125,7 +125,7 @@
     background-color: #d4cc7e;
 }
 
-.OpponentCard{
+.OpponentCard {
     margin: -3vh;
     background-color: wheat;
     width: 9vh;
@@ -139,75 +139,78 @@
     align-items: center;
 }
 
-.DeckHold.North{
+.DeckHold.North {
     -webkit-transform: rotateX(180deg);
-            transform: rotateX(180deg);
+    transform: rotateX(180deg);
     margin-top: 2vh;
-    margin-bottom: auto; 
+    margin-bottom: auto;
 }
 
-.DeckHold.West{
+.DeckHold.West {
     -webkit-transform: rotate(90deg);
-            transform: rotate(90deg);
+    transform: rotate(90deg);
     margin-left: auto;
     margin-right: 10vh;
 }
 
-.DeckHold.East{
+.DeckHold.East {
     -webkit-transform: rotate(-90deg);
-            transform: rotate(-90deg);
+    transform: rotate(-90deg);
     margin-right: auto;
     margin-left: 10vh;
 }
 
-.DeckHold.South{
+.DeckHold.South {
     margin-top: auto;
     margin-bottom: 2vh;
 }
 
-/* .DeckHold .OpponentCard:nth-child(1) {
-    transform: rotate(-30deg);
-    margin-left: -20vh;
-    margin-bottom: -6.3vh;
+/*
+ * NameField
+ */
+
+.NameBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    /* border: 1px solid black; */
+    color: black;
+    /* background-color: wheat; */
 }
 
-.DeckHold .OpponentCard:nth-child(2) {
-    transform: rotate(-22.5deg);
-    margin-left: -15vh;
-    margin-bottom: -3.6vh;
+.NameField {
+    background-color: white;
+    min-width: 8vh;
+    padding: 2%;
+    border: 3px solid black;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.DeckHold .OpponentCard:nth-child(3) {
-    transform: rotate(-15deg);
-    margin-left: -10vh;
-    margin-bottom: -2vh;
-}
-.DeckHold .OpponentCard:nth-child(4) {
-    transform: rotate(-7.5deg);
-    margin-left: -5vh;
-    margin-bottom: -1vh;
+#topLeftName {
+    align-self: flex-start;
+    margin-top: 3vh;
+    margin-left: -30vh;
 }
 
-.DeckHold .OpponentCard:nth-child(5) {
-    transform: rotate(0deg);
-    margin-left: 0vh;
-    margin-bottom: -0.5vh;
+#topRightName {
+    align-self: flex-end;
+    margin-right: 23vh;
+    margin-bottom: 5vh;
 }
 
-.DeckHold .OpponentCard:nth-child(6) {
-    transform: rotate(7.5deg);
-    margin-left: 5vh;
-    margin-bottom: -1vh;
+#bottomLeftName {
+    align-self: flex-start;
+    margin-top: 5vh;
+    margin-left: 23vh;
 }
 
-.DeckHold .OpponentCard:nth-child(7) {
-    transform: rotate(15deg);
-    margin-left: 10vh;
-    margin-bottom: -2.3vh;
+#bottomRightName {
+    align-self: flex-end;
+    margin-bottom: 8vh;
+    margin-left: 30vh;
 }
-
-.DeckHold .OpponentCard:nth-child(8) {
-    transform: rotate(22.5deg);
-    margin-left: 15vh;
-    margin-bottom: -4.5vh;
-} */

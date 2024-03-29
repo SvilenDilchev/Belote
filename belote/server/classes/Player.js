@@ -4,7 +4,7 @@ class Player{
     name = null;
     roomID = null;
     isInGame = false;
-    isRoomOwner = false;
+    deck = [];
 
     constructor(socketID){
         this.socketID = socketID;
@@ -16,10 +16,6 @@ class Player{
 
     clearName(){
         this.name = null;
-    }
-
-    makeOwner(){
-        this.isRoomOwner = true;
     }
 
     joinRoom(roomID){

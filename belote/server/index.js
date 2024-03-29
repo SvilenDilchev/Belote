@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const Player = require('./classes/Player');
 const Room = require('./classes/Room');
+const Game = require('./classes/Game');
 
 const PORT = 3001;
 const CLIENT_ORIGIN = 'http://localhost:3000';
@@ -55,9 +56,17 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('start_game', () => {
-        const room = activeRooms.get(user.roomID);
-        socket.to(user.roomID).emit('setup_game');
+    socket.on('start_game', (room) => {
+        const game = new Game(room);
+        game.setTeams(user);
+
+        const users = io.sockets.adapter.rooms.get(room.roomID);
+        console.log(users);
+
+        socket.to(socket.id).emit('print', "printing");
+
+        io.to(room.roomID).emit('receiveGameData', game);
+        io.to(room.roomID).emit('setup_game');
     });
 
     socket.on('disconnect', () => {

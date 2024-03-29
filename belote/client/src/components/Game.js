@@ -1,15 +1,64 @@
 import { Component } from 'react';
 import Scoreboard from './Scoreboard';
 import {SouthPlayerDeck, OtherPlayerDeck} from './PlayerDecks';
+import {TopNameField, BottomNameField} from './NameFields';
 import '../css/Game.css';
+
 
 class Game extends Component {
 
     constructor(props) {
         super(props);
+
+        const socket = props.socket;
+        const game = props.game;
+        var us, them;
+        if(game.team1.player1.socketID === socket.id || game.team1.player2.socketID === socket.id){
+            us = game.team1;
+            them = game.team2;
+        } else {
+            us = game.team2;
+            them = game.team1;
+        }
+        
+        var me, partner, opponentR, opponentL;
+
+        switch (socket.id) {
+            case game.team1.player1.socketID:
+                me = game.team1.player1;
+                partner = game.team1.player2;
+                opponentR = game.team2.player1;
+                opponentL = game.team2.player2;
+                break;
+            case game.team1.player2.socketID:
+                me = game.team1.player2;
+                partner = game.team1.player1;
+                opponentR = game.team2.player2;
+                opponentL = game.team2.player1;
+                break;
+            case game.team2.player1.socketID:
+                me = game.team2.player1;
+                partner = game.team2.player2;
+                opponentR = game.team1.player2;
+                opponentL = game.team1.player1;
+                break;
+            case game.team2.player2.socketID:
+                me = game.team2.player2;
+                partner = game.team2.player1;
+                opponentR = game.team1.player1;
+                opponentL = game.team1.player2;
+                break;
+            default:
+                break;
+        }
+
         this.state = {
-            usScore: 10, // Initial value of usScore
-            themScore: 20 // Initial value of themScore
+            usScore: us.totalPoints,
+            themScore: them.totalPoints,
+            me: me,
+            partner: partner,
+            opponentR: opponentR,
+            opponentL: opponentL
         };
     }
 
@@ -27,12 +76,13 @@ class Game extends Component {
                         <OtherPlayerDeck position={"North"}/>
                     </div>
                     <div className='Col RightCol' id='trCell'>
-                        tr
+                        <TopNameField leftName={this.state.partner.name} rightName={this.state.opponentR.name} />
                     </div>
                 </div>
                 <div className='Row' id='MidRow'>
                     <div className='Col LeftCol' id='mlCell'>
                         <OtherPlayerDeck position={"West"}/>
+
                     </div>
                     <div className='Col MidCol' id='mmCell'>
                         mm
@@ -43,7 +93,7 @@ class Game extends Component {
                 </div>
                 <div className='Row' id='BotRow'>
                     <div className='Col LeftCol' id='blCell'>
-                        bl
+                        <BottomNameField leftName={this.state.opponentL.name} rightName={this.state.me.name} />
                     </div>
                     <div className='Col MidCol' id='bmCell'>
                         <SouthPlayerDeck />
