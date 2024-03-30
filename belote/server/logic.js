@@ -3,6 +3,7 @@ const cardLibrary = {
     keyCounter: 0, // Initialize a key counter
 
     suits: ['Clubs', 'Diamonds', 'Hearts', 'Spades'],
+    brSuits: ['Clubs', 'Diamonds', 'Spades', 'Hearts'],
     ranks: ['7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'],
     noTrumpRanks: ['7', '8', '9', 'Jack', 'Queen', 'King', '10', 'Ace'],
     allTrumpRanks: ['7', '8', 'Queen', 'King', '10', 'Ace', '9', 'Jack'],
@@ -24,8 +25,8 @@ const cardLibrary = {
 
     sortDeckBySuits(deck) {
         return deck.sort((card1, card2) => {
-            const suitIndex1 = this.suits.indexOf(card1.suit);
-            const suitIndex2 = this.suits.indexOf(card2.suit);
+            const suitIndex1 = this.brSuits.indexOf(card1.suit);
+            const suitIndex2 = this.brSuits.indexOf(card2.suit);
             return suitIndex1 - suitIndex2;
         });
     },
