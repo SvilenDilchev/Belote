@@ -2,6 +2,7 @@ import { Component } from 'react';
 import Scoreboard from './Scoreboard';
 import { SouthPlayerDeck, OtherPlayerDeck } from './PlayerDecks';
 import { TopNameField, BottomNameField } from './NameFields';
+import BidBox from './BidBox';
 import '../css/Game.css';
 import { socket } from '../context/socket';
 
@@ -22,10 +23,28 @@ class Game extends Component {
             me: me,
             partner: partner,
             opponentR: opponentR,
-            opponentL: opponentL
-        };
+            opponentL: opponentL,
 
+            bidBoxActive: false,
+            validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
+        };
+    }
+
+    componentDidMount() {
         this.startGame();
+        // Set up event listener for 'deal_first_cards' event
+        socket.on('deal_first_cards', (game) => {
+            console.log('First cards dealt');
+            this.handleNewState(game);
+            setTimeout(() => {
+                this.requestBids();
+            }, 5000);
+        });
+    }
+
+    componentWillUnmount() {
+        // Clean up event listener when component unmounts
+        socket.off('deal_first_cards');
     }
 
     getTeams(socket, team1, team2) {
@@ -55,15 +74,27 @@ class Game extends Component {
         if (this.state.me.turn === 3) {
             this.deal5Cards();
         }
-
-        socket.on('deal_first_cards', (game) => {
-            console.log('First cards dealt');
-            this.handleNewState(game);
-        });
     }
 
     deal5Cards() {
         socket.emit('deal_5_cards', this.state.game);
+    }
+
+    requestBids() {
+        console.log('Requesting bids');
+        if (this.state.me.turn === 0) {
+            this.requestBid(this.state.me);
+        }
+    }
+
+    requestBid(player) {
+        console.log('Requesting bid from', player.name);
+        // Display bid box for player
+        this.setState({ bidBoxActive: true });
+    }
+
+    sendBid(bid) {
+        console.log('Sending bid', bid);
     }
 
     handleNewState(game) {
@@ -80,8 +111,6 @@ class Game extends Component {
             partner: partner,
             opponentR: opponentR,
             opponentL: opponentL
-        }, () => {
-            console.log('New state:', this.state);
         });
     }
 
@@ -123,7 +152,11 @@ class Game extends Component {
                         <SouthPlayerDeck deck={me.hand} />
                     </div>
                     <div className='Col RightCol' id='brCell'>
-                        br
+                        <BidBox
+                            isActive={this.state.bidBoxActive}
+                            validBids={this.state.validBids}
+                            sendBid={this.sendBid} // Pass the sendBid function
+                        />
                     </div>
                 </div>
             </div>

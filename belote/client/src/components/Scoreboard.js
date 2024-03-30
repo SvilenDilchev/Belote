@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 
 class Scoreboard extends Component {
     constructor(props) {
-        super(props);
-        console.log("props: ", props)
+        super(props);        
         this.state = {
             usScore: props.usScore,
             themScore: props.themScore

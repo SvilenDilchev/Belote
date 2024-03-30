@@ -219,3 +219,105 @@
     margin-bottom: 8vh;
     margin-left: 30vh;
 }
+
+/*
+ * BidBox
+ */
+
+.BidBox {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 60vh;
+    height: 60vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: wheat;
+    color: black;
+    border: 3px solid black;
+    border-radius: 5vh;
+    padding: 2vh;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.BidBox.active {
+    opacity: 1;
+}
+
+#BidBoxHeader {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 2vh;
+}
+
+#BidBoxHR{
+    width: 100%;
+    height: 3px;
+    margin-bottom: 2vh;
+    color: black;
+    background-color: black;
+}
+
+.BidBoxRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2vh;
+    width: 100%;
+}
+
+.BidField{
+    width: 50%;
+    height: 10vh;
+    background-color: lightgray;
+    border: 3px solid black;
+    border-radius: 5vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3vh;
+    font-weight: bold;
+}
+
+.BidField.active{
+    background-color: white;
+}
+
+.LeftField{
+    margin-right: 1vh;
+}
+
+.RighFielf{
+    margin-left: 1vh;
+}
+
+.BidField.active:hover {
+    background-color: #d4cc7e;
+    cursor: pointer;
+}
+
+#overlay {
+    position: fixed;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 15;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+#overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}

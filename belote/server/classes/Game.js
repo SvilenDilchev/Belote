@@ -84,6 +84,18 @@ class Game {
 
         this.resetTeamsAfterDealing();
     }
+
+    deal3Cards() {
+        this.room.players.sort((a, b) => a.turn - b.turn); // Sorting players based on turn
+
+        for (let i = 0; i < this.room.players.length; i++) {
+            for (let j = 0; j < 3; j++) {
+                this.room.players[i].hand.push(this.fullDeck.pop()); // Deal 3 cards to each player
+            }
+        }
+
+        this.resetTeamsAfterDealing();
+    }
 }
 
 module.exports = Game;
