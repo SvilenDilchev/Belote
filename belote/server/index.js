@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const Player = require('./classes/Player');
 const Room = require('./classes/Room');
 const Game = require('./classes/Game');
+const { getBiddingResult } = require('./logic');
 
 const PORT = 3001;
 const CLIENT_ORIGIN = 'http://localhost:3000';
@@ -71,17 +72,49 @@ io.on('connection', (socket) => {
         game.fullDeck = gameData.fullDeck;
         game.team1 = gameData.team1;
         game.team2 = gameData.team2;
+        game.roundNumber = gameData.roundNumber;
         game.deal5Cards();
         io.to(game.room.roomID).emit('deal_first_cards', game);
     });
 
+    socket.on('deal_3_cards', (gameData) => {
+        const game = new Game(gameData.room);
+        game.fullDeck = gameData.fullDeck;
+        game.team1 = gameData.team1;
+        game.team2 = gameData.team2;
+        game.roundNumber = gameData.roundNumber;
+        game.deal3Cards();
+        io.to(game.room.roomID).emit('deal_second_cards', game);
+    });
+
+    socket.on('request_bids', (gameData) => {
+        const game = new Game(gameData.room);
+        game.fullDeck = gameData.fullDeck;
+        game.team1 = gameData.team1;
+        game.team2 = gameData.team2;
+        game.roundNumber = gameData.roundNumber;
+        getBiddingResult(game, io);
+    });
+
+    socket.on('end_round', (gameData) => {
+        const game = new Game(gameData.room);
+        game.fullDeck = gameData.fullDeck;
+        game.team1 = gameData.team1;
+        game.team2 = gameData.team2;
+        game.roundNumber = gameData.roundNumber;
+        game.resetDeck();
+        game.incrementRoundNumber();
+        game.rotatePlayersAndClearHands();
+        io.to(game.room.roomID).emit('reset_game', game);
+    });
+
     socket.on('disconnect', () => {
         const room = activeRooms.get(user.roomID);
-        if(room){
+        if (room) {
             room.removePlayer(user);
             socket.to(room.roomID).emit('update_room', room);
             socket.to(room.roomID).emit('update_players', room.players);
-            if(room.players.length === 0){
+            if (room.players.length === 0) {
                 activeRooms.delete(user.roomID);
             }
         }

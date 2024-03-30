@@ -286,23 +286,24 @@
     justify-content: center;
     font-size: 3vh;
     font-weight: bold;
+    cursor: default;
 }
 
-.BidField.active{
+.BidBox.active .BidField.active {
     background-color: white;
+    cursor: pointer;
 }
 
-.LeftField{
+.LeftField {
     margin-right: 1vh;
 }
 
-.RighFielf{
+.RightField {
     margin-left: 1vh;
 }
 
-.BidField.active:hover {
+.BidBox.active .BidField.active:hover {
     background-color: #d4cc7e;
-    cursor: pointer;
 }
 
 #overlay {

@@ -28,11 +28,16 @@ class SouthPlayerDeck extends Component {
     }
 
     render() {
+        if (!this.state.cards || this.state.cards.length === 0) {
+            return null; // Render nothing if cards are empty
+        }
+
         let zIndex = 10;
         return (
             <div className="DeckHold South">
                 {
                     this.state.cards.map((card) => {
+                        if (!card) return null; // Handle null or undefined cards
                         zIndex--;
                         return (
                             <div
@@ -69,9 +74,14 @@ class OtherPlayerDeck extends Component {
     }
 
     render() {
+        if (!this.state.cards || this.state.cards.length === 0) {
+            return null; // Render nothing if cards are empty
+        }
+
         return (
             <div className={`DeckHold ${this.state.position}`}>
                 {this.state.cards.map((card) => {
+                    if (!card) return null; // Handle null or undefined cards
                     return <div className="OpponentCard" key={card.key}></div>;
                 })}
             </div>

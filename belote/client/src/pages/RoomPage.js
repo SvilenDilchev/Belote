@@ -93,6 +93,14 @@ export default function RoomPage({ rooms, setRooms }) {
     };
   }, [socket, setRooms, rooms, navigate]);
 
+  useEffect(() => {
+    socket.on('reset_game', (gameData) => {
+      console.log("reset_game");
+      console.log('round', gameData.roundNumber);  
+      setGame(gameData);
+    });
+  }, [socket]);
+
   if (!room) {
     return <div>Loading...</div>;
   }

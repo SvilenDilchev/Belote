@@ -11,13 +11,14 @@ class Game extends Component {
         super(props);
 
         const { socket, game } = props;
-        const { team1, team2 } = game;
+        const { team1, team2, roundNumber } = game;
 
         const { us, them } = this.getTeams(socket, team1, team2);
         const { me, partner, opponentR, opponentL } = this.getPlayers(socket, game);
 
         this.state = {
             game: game,
+            roundNumber: roundNumber,
             us: us,
             them: them,
             me: me,
@@ -27,19 +28,71 @@ class Game extends Component {
 
             bidBoxActive: false,
             validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
+            roundRoundBiddingInfo: {
+                biddingPlayer: null,
+                gameBid: "Pass",
+                multiplier: 1
+            }
         };
     }
 
     componentDidMount() {
         this.startGame();
+
         // Set up event listener for 'deal_first_cards' event
         socket.on('deal_first_cards', (game) => {
-            console.log('First cards dealt');
             this.handleNewState(game);
             setTimeout(() => {
                 this.requestBids();
             }, 5000);
         });
+
+        socket.on('request_bid', (player, validBids) => {
+            this.setState({ validBids: validBids });
+            if (this.state.me.turn === player.turn) {
+                this.requestBid(player);
+            }
+        });
+
+        socket.on('bidding_result', (roundRoundBiddingInfo) => {
+            const newRoundRoundBiddingInfo = {
+                gameBid: roundRoundBiddingInfo.gameBid,
+                biddingPlayer: roundRoundBiddingInfo.biddingPlayer,
+                multiplier: roundRoundBiddingInfo.multiplier
+            };
+
+
+            this.setState(prevState => ({
+                roundRoundBiddingInfo: {
+                    ...prevState.roundRoundBiddingInfo,
+                    gameBid: roundRoundBiddingInfo.gameBid,
+                    biddingPlayer: roundRoundBiddingInfo.biddingPlayer,
+                    multiplier: roundRoundBiddingInfo.multiplier
+                }
+            }), () => {
+                if (this.state.roundRoundBiddingInfo.gameBid !== 'Pass') {
+                    if (this.state.me.turn === 3) {
+                        this.deal3Cards();
+                    }
+                } else {
+                    this.endRound();
+                }
+            });
+        });
+
+        socket.on('deal_second_cards', (game) => {
+            this.handleNewState(game);
+            setTimeout(() => {
+                // TODO: Add actual play functionaliy here
+            }, 5000);
+        });
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.game.roundNumber !== this.props.game.roundNumber) {
+
+            this.setNewRound(this.props.game);
+        }
     }
 
     componentWillUnmount() {
@@ -65,12 +118,11 @@ class Game extends Component {
     }
 
     startGame() {
-        console.log('Game has started');
         this.playRound();
     }
 
     playRound() {
-        console.log('Round has started');
+
         if (this.state.me.turn === 3) {
             this.deal5Cards();
         }
@@ -80,21 +132,25 @@ class Game extends Component {
         socket.emit('deal_5_cards', this.state.game);
     }
 
+    deal3Cards() {
+        socket.emit('deal_3_cards', this.state.game);
+    }
+
     requestBids() {
-        console.log('Requesting bids');
         if (this.state.me.turn === 0) {
-            this.requestBid(this.state.me);
+            socket.emit('request_bids', this.state.game);
         }
     }
 
     requestBid(player) {
-        console.log('Requesting bid from', player.name);
         // Display bid box for player
         this.setState({ bidBoxActive: true });
     }
 
     sendBid(bid) {
-        console.log('Sending bid', bid);
+        // Send bid to server
+        socket.emit('send_bid', bid);
+        this.setState({ bidBoxActive: false });
     }
 
     handleNewState(game) {
@@ -105,12 +161,49 @@ class Game extends Component {
 
         this.setState({
             game: game,
+            roundNumber: game.roundNumber,
             us: us,
             them: them,
             me: me,
             partner: partner,
             opponentR: opponentR,
             opponentL: opponentL
+        });
+    }
+
+    endRound() {
+        if (this.state.me.turn === 3) {
+            socket.emit('end_round', this.state.game);
+        }
+    }
+
+    setNewRound(newGame) {
+        const { team1, team2 } = newGame;
+
+        const { us, them } = this.getTeams(socket, team1, team2);
+        const { me, partner, opponentR, opponentL } = this.getPlayers(socket, newGame);
+
+        const newState = {
+            game: newGame,
+            roundNumber: newGame.roundNumber,
+            us: us,
+            them: them,
+            me: me,
+            partner: partner,
+            opponentR: opponentR,
+            opponentL: opponentL,
+
+            bidBoxActive: false,
+            validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
+            roundRoundBiddingInfo: {
+                biddingPlayer: null,
+                gameBid: "Pass",
+                multiplier: 1
+            }
+        };
+
+        this.setState(newState, () => {
+            this.playRound();
         });
     }
 
@@ -155,7 +248,7 @@ class Game extends Component {
                         <BidBox
                             isActive={this.state.bidBoxActive}
                             validBids={this.state.validBids}
-                            sendBid={this.sendBid} // Pass the sendBid function
+                            sendBid={(bid) => this.sendBid(bid)} // Pass the sendBid function
                         />
                     </div>
                 </div>

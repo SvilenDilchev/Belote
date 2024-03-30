@@ -1,5 +1,5 @@
 const Team = require('./Team');
-const cardLibrary = require('../logic.js');
+const { cardLibrary } = require('../logic.js');
 const { reset } = require('nodemon');
 
 class Game {
@@ -8,6 +8,7 @@ class Game {
     room = null;
     team1 = null;
     team2 = null;
+    roundNumber = 0;
 
     constructor(room) {
         this.room = room;
@@ -68,6 +69,16 @@ class Game {
         this.fullDeck = cardLibrary.shuffleDeck(this.fullDeck);
     }
 
+    clearDeck(){
+        this.fullDeck = [];
+    }
+
+    resetDeck(){
+        this.clearDeck();
+        this.createDeck();
+        this.shuffleDeck();
+    }
+
     deal5Cards() {
         this.room.players.sort((a, b) => a.turn - b.turn); // Sorting players based on turn
 
@@ -96,6 +107,25 @@ class Game {
 
         this.resetTeamsAfterDealing();
     }
+
+    incrementRoundNumber() {
+        this.roundNumber++;
+    }
+
+    rotatePlayersAndClearHands() {
+        this.room.players.sort((a, b) => a.turn - b.turn); // Sorting players based on turn
+
+        for (let i = 0; i < this.room.players.length; i++) {
+            this.room.players[i].hand = [];
+        }
+
+        this.room.players[0].turn = 3;
+        this.room.players[1].turn = 0;
+        this.room.players[2].turn = 1;
+        this.room.players[3].turn = 2;
+
+        this.resetTeamsAfterDealing();
+    }    
 }
 
 module.exports = Game;

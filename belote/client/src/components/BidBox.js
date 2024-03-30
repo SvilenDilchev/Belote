@@ -26,26 +26,26 @@ class BidBox extends Component {
                     <div id="BidBoxHeader">Please Bid</div>
                     <div id="BidBoxHR"></div>
                     <div className="BidBoxRow">
-                        <div className={`BidField LeftField ${this.state.validBids.includes("Clubs") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Clubs") ? () => this.props.sendBid("Clubs") : undefined}>
+                        <div className={`BidField LeftField ${this.state.validBids.includes("Clubs") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Clubs") && this.state.isActive ? () => this.props.sendBid("Clubs") : undefined}>
                             Clubs
                         </div>
-                        <div className={`BidField RightField ${this.state.validBids.includes("Diamonds") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Diamonds") ? () => this.props.sendBid("Diamonds") : undefined}>
+                        <div className={`BidField RightField ${this.state.validBids.includes("Diamonds") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Diamonds") && this.state.isActive ? () => this.props.sendBid("Diamonds") : undefined}>
                             Diamonds
                         </div>
                     </div>
                     <div className="BidBoxRow">
-                        <div className={`BidField LeftField ${this.state.validBids.includes("Hearts") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Hearts") ? () => this.props.sendBid("Hearts") : undefined}>
+                        <div className={`BidField LeftField ${this.state.validBids.includes("Hearts") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Hearts") && this.state.isActive ? () => this.props.sendBid("Hearts") : undefined}>
                             Hearts
                         </div>
-                        <div className={`BidField RightField ${this.state.validBids.includes("Spades") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Spades") ? () => this.props.sendBid("Spades") : undefined}>
+                        <div className={`BidField RightField ${this.state.validBids.includes("Spades") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("Spades") && this.state.isActive ? () => this.props.sendBid("Spades") : undefined}>
                             Spades
                         </div>
                     </div>
                     <div className="BidBoxRow">
-                        <div className={`BidField LeftField ${this.state.validBids.includes("No Trumps") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("No Trumps") ? () => this.props.sendBid("No Trumps") : undefined}>
+                        <div className={`BidField LeftField ${this.state.validBids.includes("No Trumps") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("No Trumps") && this.state.isActive ? () => this.props.sendBid("No Trumps") : undefined}>
                             No Trumps
                         </div>
-                        <div className={`BidField RightField ${this.state.validBids.includes("All Trumps") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("All Trumps") ? () => this.props.sendBid("All Trumps") : undefined}>
+                        <div className={`BidField RightField ${this.state.validBids.includes("All Trumps") ? "active" : ""}`} id="bidField" onClick={this.state.validBids.includes("All Trumps") && this.state.isActive ? () => this.props.sendBid("All Trumps") : undefined}>
                             All Trumps
                         </div>
                     </div>
@@ -54,7 +54,7 @@ class BidBox extends Component {
                             Pass
                         </div>
                         <div className={`BidField RightField ${this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble") ? "active" : ""}`} id="bidField"
-                            onClick={this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble") ? () => this.props.sendBid(this.state.validBids.includes("Redouble") ? "Redouble" : "Double") : undefined}>
+                            onClick={(this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble")) && this.state.isActive ? () => this.props.sendBid(this.state.validBids.includes("Redouble") ? "Redouble" : "Double") : undefined}>
                             {this.state.validBids.includes("Redouble") ? "Redouble" : "Double"}
                         </div>
                     </div>
