@@ -2,8 +2,10 @@ const cardLibrary = {
 
     keyCounter: 0, // Initialize a key counter
 
-    suits: ['Hearts', 'Diamonds', 'Clubs', 'Spades'],
+    suits: ['Clubs', 'Diamonds', 'Hearts', 'Spades'],
     ranks: ['7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'],
+    noTrumpRanks: ['7', '8', '9', 'Jack', 'Queen', 'King', '10', 'Ace'],
+    allTrumpRanks: ['7', '8', 'Queen', 'King', '10', 'Ace', '9', 'Jack'],
 
     createCard: function (rank, suit, isTrump = false, isPlayable = true) {
         const card = {
@@ -19,8 +21,57 @@ const cardLibrary = {
     shuffleDeck(deck) {
         return deck.sort(() => Math.random() - 0.5);
     },
-};
 
+    sortDeckBySuits(deck) {
+        return deck.sort((card1, card2) => {
+            const suitIndex1 = this.suits.indexOf(card1.suit);
+            const suitIndex2 = this.suits.indexOf(card2.suit);
+            return suitIndex1 - suitIndex2;
+        });
+    },
+
+    sortDeckByPokerOrder(deck) {
+        const sortedDeck = [];
+        for (const suit of this.suits) {
+            const suitCards = deck.filter(card => card.suit === suit);
+            const sortedSuitCards = suitCards.sort((card1, card2) => {
+                const rankIndex1 = this.ranks.indexOf(card1.rank);
+                const rankIndex2 = this.ranks.indexOf(card2.rank);
+                return rankIndex2 - rankIndex1; // Sort in reverse order
+            });
+            sortedDeck.push(...sortedSuitCards);
+        }
+        return sortedDeck;
+    },
+
+    sortDeckByNoTrumpRanks(deck) {
+        const sortedDeck = [];
+        for (const suit of this.suits) {
+            const suitCards = deck.filter(card => card.suit === suit);
+            const sortedSuitCards = suitCards.sort((card1, card2) => {
+                const rankIndex1 = this.noTrumpRanks.indexOf(card1.rank);
+                const rankIndex2 = this.noTrumpRanks.indexOf(card2.rank);
+                return rankIndex2 - rankIndex1; // Sort in reverse order
+            });
+            sortedDeck.push(...sortedSuitCards);
+        }
+        return sortedDeck;
+    },
+
+    sortDeckByAllTrumpRanks(deck) {
+        const sortedDeck = [];
+        for (const suit of this.suits) {
+            const suitCards = deck.filter(card => card.suit === suit);
+            const sortedSuitCards = suitCards.sort((card1, card2) => {
+                const rankIndex1 = this.allTrumpRanks.indexOf(card1.rank);
+                const rankIndex2 = this.allTrumpRanks.indexOf(card2.rank);
+                return rankIndex2 - rankIndex1; // Sort in reverse order
+            });
+            sortedDeck.push(...sortedSuitCards);
+        }
+        return sortedDeck;
+    },
+};
 
 const getBiddingResult = (gameData, io, passCount = 0, bidCount = 0, currentPlayerIndex = 0, gameBid = 'Pass', biddingPlayer = null, validBids = ['Clubs', 'Diamonds', 'Hearts', 'Spades', 'No Trumps', 'All Trumps'], multiplier = 1, bid = 'Pass', hasEmited = false) => {
     const processBidding = () => {

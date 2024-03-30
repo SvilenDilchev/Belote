@@ -69,11 +69,11 @@ class Game {
         this.fullDeck = cardLibrary.shuffleDeck(this.fullDeck);
     }
 
-    clearDeck(){
+    clearDeck() {
         this.fullDeck = [];
     }
 
-    resetDeck(){
+    resetDeck() {
         this.clearDeck();
         this.createDeck();
         this.shuffleDeck();
@@ -91,8 +91,9 @@ class Game {
             for (let j = 0; j < 2; j++) {
                 this.room.players[i].hand.push(this.fullDeck.pop()); // Deal 3 cards to each player
             }
+            cardLibrary.sortDeckBySuits(this.room.players[i].hand);
+            this.room.players[i].hand = cardLibrary.sortDeckByPokerOrder(this.room.players[i].hand);
         }
-
         this.resetTeamsAfterDealing();
     }
 
@@ -103,6 +104,8 @@ class Game {
             for (let j = 0; j < 3; j++) {
                 this.room.players[i].hand.push(this.fullDeck.pop()); // Deal 3 cards to each player
             }
+            cardLibrary.sortDeckBySuits(this.room.players[i].hand);
+            this.room.players[i].hand = cardLibrary.sortDeckByPokerOrder(this.room.players[i].hand);
         }
 
         this.resetTeamsAfterDealing();
@@ -125,7 +128,7 @@ class Game {
         this.room.players[3].turn = 2;
 
         this.resetTeamsAfterDealing();
-    }    
+    }
 }
 
 module.exports = Game;
