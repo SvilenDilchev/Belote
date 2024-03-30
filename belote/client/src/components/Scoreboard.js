@@ -3,10 +3,20 @@ import React, { Component } from 'react';
 class Scoreboard extends Component {
     constructor(props) {
         super(props);
+        console.log("props: ", props)
         this.state = {
             usScore: props.usScore,
             themScore: props.themScore
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.usScore !== this.props.usScore || prevProps.themScore !== this.props.themScore) {
+            this.setState({
+                usScore: this.props.usScore,
+                themScore: this.props.themScore
+            });
+        }
     }
 
     render() {

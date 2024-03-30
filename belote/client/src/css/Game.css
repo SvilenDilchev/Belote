@@ -125,6 +125,11 @@
     background-color: #d4cc7e;
 }
 
+.MyCard img {
+    width: 100%;
+    height: 100%;
+}
+
 .OpponentCard {
     margin: -3vh;
     background-color: wheat;

@@ -3,8 +3,10 @@ class Player{
     socketID = null;
     name = null;
     roomID = null;
+
     isInGame = false;
-    deck = [];
+    hand = [];
+    turn = 0;
 
     constructor(socketID){
         this.socketID = socketID;

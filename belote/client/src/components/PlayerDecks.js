@@ -1,27 +1,49 @@
-import { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
+
+function importAll(r) {
+    let images = {};
+    r.keys().map(item => {
+        images[item.replace('./', '')] = r(item);
+        return null;
+    });
+    return images;
+}
+
+const images = importAll(require.context('../assets/img/playing_cards/PNG-cards-1.3', false, /\.(png|jpe?g|svg)$/));
 
 class SouthPlayerDeck extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
-            cards: [1, 2, 3, 4, 5, 6, 7, 8]
+            cards: props.deck
         };
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.deck !== this.props.deck) {
+            this.setState({
+                cards: this.props.deck
+            });
+        }
+    }
+
     render() {
+        let zIndex = 10;
         return (
             <div className="DeckHold South">
                 {
                     this.state.cards.map((card) => {
-                        return <div 
-                            className="MyCard" 
-                            key={card} 
-                            id={`myCard${card}`}
-                            style={{'zIndex': (10-card)}}
+                        zIndex--;
+                        return (
+                            <div
+                                key={card.key}
+                                className="MyCard"
+                                id={`myCard${card.key}`}
+                                style={{ zIndex }}
                             >
-                                {card}
-                        </div>
+                                <img src={images[`${card.rank.toLowerCase()}_of_${card.suit.toLowerCase()}.png`]} alt={`${card.rank} of ${card.suit}`} />
+                            </div>
+                        );
                     })
                 }
             </div>
@@ -30,25 +52,27 @@ class SouthPlayerDeck extends Component {
 }
 
 class OtherPlayerDeck extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
-            cards: [1, 2, 3, 4, 5, 6, 7, 8],
+            cards: props.deck,
             position: props.position
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.deck !== this.props.deck) {
+            this.setState({
+                cards: this.props.deck
+            });
+        }
     }
 
     render() {
         return (
             <div className={`DeckHold ${this.state.position}`}>
                 {this.state.cards.map((card) => {
-                    return <div
-                        className="OpponentCard"
-                        key={card}
-                    >
-                        {card}
-                    </div>
+                    return <div className="OpponentCard" key={card.key}></div>;
                 })}
             </div>
         );

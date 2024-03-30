@@ -11,6 +11,15 @@ class TopNameField extends Component {
         };
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.leftName !== this.props.leftName || prevProps.rightName !== this.props.rightName) {
+            this.setState({
+                leftName: this.props.leftName,
+                rightName: this.props.rightName
+            });
+        }
+    }
+
     render() {
         return (
             <div className="NameBox">
@@ -29,6 +38,15 @@ class BottomNameField extends Component {
             leftName: props.leftName,
             rightName: props.rightName
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.leftName !== this.props.leftName || prevProps.rightName !== this.props.rightName) {
+            this.setState({
+                leftName: this.props.leftName,
+                rightName: this.props.rightName
+            });
+        }
     }
 
     render() {

@@ -58,15 +58,21 @@ io.on('connection', (socket) => {
 
     socket.on('start_game', (room) => {
         const game = new Game(room);
-        game.setTeams(user);
-
-        const users = io.sockets.adapter.rooms.get(room.roomID);
-        console.log(users);
-
-        socket.to(socket.id).emit('print', "printing");
+        game.setTeams();
+        game.createDeck();
+        game.shuffleDeck();
 
         io.to(room.roomID).emit('receiveGameData', game);
         io.to(room.roomID).emit('setup_game');
+    });
+
+    socket.on('deal_5_cards', (gameData) => {
+        const game = new Game(gameData.room);
+        game.fullDeck = gameData.fullDeck;
+        game.team1 = gameData.team1;
+        game.team2 = gameData.team2;
+        game.deal5Cards();
+        io.to(game.room.roomID).emit('deal_first_cards', game);
     });
 
     socket.on('disconnect', () => {
