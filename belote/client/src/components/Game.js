@@ -286,7 +286,7 @@ class Game extends Component {
                 </div>
                 <div className='Row' id='TopRow'>
                     <div className='Col LeftCol' id='tlCell'>
-                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} />
+                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} gameBid={this.state.roundRoundBiddingInfo.gameBid}/>
                     </div>
                     <div className='Col MidCol' id='tmCell'>
                         <OtherPlayerDeck position={"North"} deck={partner.hand} />

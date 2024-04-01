@@ -62,13 +62,13 @@
 }
 
 .Scoreboard {
-    width: 5vh;
-    min-width: 5em;
+    width: 7vh;
+    min-width: 7em;
     height: auto;
     background-color: white;
     border: 3px solid black;
     border-radius: 20px;
-    margin-top: 1vh;
+    margin-top: vh;
     margin-left: 5vh;
     padding: 1vh;
 }

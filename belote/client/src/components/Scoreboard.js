@@ -5,20 +5,26 @@ class Scoreboard extends Component {
         super(props);        
         this.state = {
             usScore: props.usScore,
-            themScore: props.themScore
+            themScore: props.themScore,
+            gameBid: props.gameBid
         };
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.usScore !== this.props.usScore || prevProps.themScore !== this.props.themScore) {
+        if (prevProps.usScore !== this.props.usScore || prevProps.themScore !== this.props.themScore || prevProps.gameBid !== this.props.gameBid) {
             this.setState({
                 usScore: this.props.usScore,
-                themScore: this.props.themScore
+                themScore: this.props.themScore,
+                gameBid: this.props.gameBid
             });
         }
     }
 
     render() {
+        const hasBid = this.state.gameBid !== null && this.state.gameBid !== 'Pass';
+        console.log('hasBid', hasBid)
+        console.log('gameBid', this.state.gameBid)
+
         return (
             <div className='Scoreboard' id='scoreboard'>
                 <div className='ScoreboardRow'>
@@ -30,6 +36,22 @@ class Scoreboard extends Component {
                 </div>
                 <div className='ScoreboardRow'>
                     <div id='themScore'> Вие: {this.state.themScore}</div>
+                </div>
+                <hr style={
+                    {
+                        display: hasBid ? 'block' : 'none'
+                    }
+                }></hr>
+                <div style={{
+                    display: hasBid ? 'flex' : 'none',
+                    flexDirection: 'column',
+                    color: 'black',
+                    fontSize: '20px',
+                    alignItems: 'center',
+                    fontWeight: 'bold',
+                    marginTop: '5px'
+                }}>
+                    {this.state.gameBid}
                 </div>
             </div>
         );
