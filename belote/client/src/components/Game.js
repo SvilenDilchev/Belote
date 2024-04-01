@@ -5,6 +5,7 @@ import { TopNameField, BottomNameField } from './NameFields';
 import BidBox from './BidBox';
 import '../css/Game.css';
 import { socket } from '../context/socket';
+import PlayArea from './PlayArea';
 
 class Game extends Component {
     constructor(props) {
@@ -13,6 +14,29 @@ class Game extends Component {
         const { socket, game: { team1, team2, roundNumber } } = props;
         const { us, them } = this.getTeams(socket, team1, team2);
         const { me, partner, opponentR, opponentL } = this.getPlayers(socket, team1, team2);
+
+        const cardsPlayed = {
+            me: { 
+                player: me,
+                cardPlayed: false,
+                card: null,
+            },
+            opponentR: {
+                player: opponentR,
+                cardPlayed: false,
+                card: null,
+            },
+            opponentL: {
+                player: opponentL,
+                cardPlayed: false,
+                card: null,
+            },
+            partner: {
+                player: partner,
+                cardPlayed: false,
+                card: null,
+            }
+        }
 
         this.state = {
             game: props.game,
@@ -25,7 +49,8 @@ class Game extends Component {
             opponentL,
             bidBoxActive: false,
             validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
-            roundRoundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 }
+            roundRoundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
+            cardsPlayed: cardsPlayed
         };
     }
 
@@ -35,6 +60,7 @@ class Game extends Component {
         socket.on('request_bid', this.handleRequestBid);
         socket.on('bidding_result', this.handleBiddingResult);
         socket.on('deal_second_cards', this.handleDealSecondCards);
+        socket.on('display_card', this.handleCardPlayed);
     }
 
     componentWillUnmount() {
@@ -44,7 +70,7 @@ class Game extends Component {
         socket.off('deal_second_cards');
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevState, prevProps) {
         if (prevProps.game.roundNumber !== this.props.game.roundNumber) {
             this.setNewRound(this.props.game);
         }
@@ -56,14 +82,29 @@ class Game extends Component {
     }
 
     getPlayers(socket, team1, team2) {
-        const { player1, player2 } = team1;
-        const { player1: opp1, player2: opp2 } = team2;
-        const players = [player1, player2, opp1, opp2];
-        const index = players.findIndex(player => player.socketID === socket.id);
-        const me = players[index];
-        const partner = players[(index + 1) % 4];
-        const opponentR = players[(index + 2) % 4];
-        const opponentL = players[(index + 3) % 4];
+        var me, partner, opponentR, opponentL;
+        if (team1.player1.socketID === socket.id) {
+            me = team1.player1;
+            partner = team1.player2;
+            opponentR = team2.player1;
+            opponentL = team2.player2;
+        } else if (team1.player2.socketID === socket.id) {
+            me = team1.player2;
+            partner = team1.player1;
+            opponentR = team2.player2;
+            opponentL = team2.player1;
+        } else if (team2.player1.socketID === socket.id) {
+            me = team2.player1;
+            partner = team2.player2;
+            opponentR = team1.player2;
+            opponentL = team1.player1;
+        } else {
+            me = team2.player2;
+            partner = team2.player1;
+            opponentR = team1.player1;
+            opponentL = team1.player2;
+        }
+
         return { me, partner, opponentR, opponentL };
     }
 
@@ -134,6 +175,93 @@ class Game extends Component {
         setTimeout(() => {
             // Add actual play functionality here
         }, 5000);
+    }
+
+    handleCardPlayed = (data) => {
+        switch (data.player.turn){
+            case this.state.me.turn:
+                this.setState(prevState => ({
+                    me: data.player,
+                    cardsPlayed: {
+                        ...prevState.cardsPlayed,
+                        me: {
+                            player: data.player,
+                            cardPlayed: true,
+                            card: data.card
+                        }
+                    }
+                }), () => {
+                    console.log("noviq state --", this.state);
+                });
+                break;
+            case this.state.partner.turn:
+                this.setState(prevState => ({
+                    partner: data.player,
+                    cardsPlayed: {
+                        ...prevState.cardsPlayed,
+                        partner: {
+                            player: data.player,
+                            cardPlayed: true,
+                            card: data.card
+                        }
+                    }
+                }), () => {
+                    console.log("noviq state --", this.state);
+                });
+                break;
+            case this.state.opponentR.turn:
+                this.setState(prevState => ({
+                    opponentR: data.player,
+                    cardsPlayed: {
+                        ...prevState.cardsPlayed,
+                        opponentR: {
+                            player: data.player,
+                            cardPlayed: true,
+                            card: data.card
+                        }
+                    }
+                }), () => {
+                    console.log("noviq state --", this.state);
+                });
+                break;
+            case this.state.opponentL.turn:
+                this.setState(prevState => ({
+                    opponentL: data.player,
+                    cardsPlayed: {
+                        ...prevState.cardsPlayed,
+                        opponentL: {
+                            player: data.player,
+                            cardPlayed: true,
+                            card: data.card
+                        }
+                    }
+                }), () => {
+                    console.log("noviq state --", this.state);
+                });
+                break;
+            default:
+                break;
+        }
+
+        this.setState(prevState => ({
+            cardsPlayed: {
+                ...prevState.cardsPlayed,
+                [data.player]: {
+                    ...prevState.cardsPlayed[data.player],
+                    cardPlayed: true,
+                    card: data.card
+                }
+            }
+        }), () => {
+            console.log("tva rukata li e --", data.card);
+            console.log("tva li si --", data.player);
+        });
+    }
+
+    playCard(card, index){
+        socket.emit('play_card', card, this.state.me);
+        console.log(card);
+        //TODO: emit play card
     }
 
     handleNewState(game) {
@@ -208,7 +336,7 @@ class Game extends Component {
                         <OtherPlayerDeck position={"West"} deck={opponentL.hand} />
                     </div>
                     <div className='Col MidCol' id='mmCell'>
-                        mm
+                        <PlayArea cardsPlayed={this.state.cardsPlayed}/>
                     </div>
                     <div className='Col RightCol' id='mrCell'>
                         <OtherPlayerDeck position={"East"} deck={opponentR.hand} />
@@ -219,7 +347,7 @@ class Game extends Component {
                         <BottomNameField leftName={opponentL.name} rightName={me.name} />
                     </div>
                     <div className='Col MidCol' id='bmCell'>
-                        <SouthPlayerDeck deck={me.hand} />
+                        <SouthPlayerDeck deck={me.hand} playCard={(card, index) => this.playCard(card, index)} />
                     </div>
                     <div className='Col RightCol' id='brCell'>
                         <BidBox

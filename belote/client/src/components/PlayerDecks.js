@@ -77,6 +77,7 @@ class SouthPlayerDeck extends Component {
                                     transform: `rotate(var(--rotation)) translateY(${verticalOffset}px)`,
                                      // Pass rotation as a custom property
                                 }}
+                                onClick={() => this.props.playCard((card, index))}
                             >
                                 <img src={images[`${card.rank.toLowerCase()}_of_${card.suit.toLowerCase()}.png`]} alt={`${card.rank} of ${card.suit}`} />
                             </div>

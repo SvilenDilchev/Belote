@@ -96,6 +96,20 @@ io.on('connection', (socket) => {
         getBiddingResult(game, io);
     });
 
+    socket.on('play_card', (card, player) => {
+        console.log(player.hand[card]);
+        console.log(player.hand);
+        data = {
+            card: player.hand[card],
+            player: player
+        }
+        console.log('player-before -- ', player.hand);
+        data.player.hand.splice(card, 1);
+        console.log('player-after -- ', player.hand);
+        console.log(player.hand);
+        io.emit('display_card', (data));
+    });
+
     socket.on('end_round', (gameData) => {
         const game = new Game(gameData.room);
         game.fullDeck = gameData.fullDeck;
