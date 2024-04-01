@@ -36,32 +36,52 @@ class SouthPlayerDeck extends Component {
         const angleIncrement = 60 / (totalCards - 1); // Angle increment for arranging cards in a semi-circle
         let angle = -30; // Starting angle
 
+        if(this.state.cards.length === 1){
+            angle = 0;
+        }
+
         return (
             <div className="DeckHold South">
                 {
                     this.state.cards.map((card, index) => {
                         if (!card) return null; // Handle null or undefined cards
 
-                        const rotation = `${angle}deg`; // Calculate rotation angle for the card
-                        const zIndex = totalCards - index; // Z-index based on card position
+                        var rotation = `${angle}deg`; // Calculate rotation angle for the card
+                        const zIndex = totalCards - index + 10; // Z-index based on card position
 
                         // Calculate vertical offset based on distance from the center of the deck
                         var verticalOffset = Math.abs(index - (totalCards - 1) / 2) * 24;
-                        if(this.state.cards.length === 5 && (index === 1 || index === 3)){
-                            switch(index){
-                                case 1:
+
+                        switch (this.state.cards.length) {
+                            case 4:
+                                if (index === 1 || index === 2) {
+                                    verticalOffset -= 6;
+                                }
+                                break;
+                            case 5:
+                                if (index === 1 || index === 3) {
                                     verticalOffset -= 11;
-                                    break;
-                                case 3:
-                                    verticalOffset -= 11;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }else if(this.state.cards.length === 8){
-                            if (index >= 1 && index <= 6) {
-                                verticalOffset -= [14, 16, 7, 7, 16, 14][index - 1];
-                            }
+                                }
+                                break;
+                            case 6:
+                                if(index === 1 || index === 4){
+                                    verticalOffset -= 4;
+                                }else if(index === 0 || index === 5){
+                                    verticalOffset += 8;
+                                }
+                                break;
+                            case 7:
+                                if(index === 1 || index === 2 || index === 4 || index === 5) {
+                                    verticalOffset -= 14;
+                                }
+                                break;
+                            case 8:
+                                if (index >= 1 && index <= 6) {
+                                    verticalOffset -= [14, 16, 7, 7, 16, 14][index - 1];
+                                }
+                                break;
+                            default:
+                                break;
                         }
 
                         angle += angleIncrement; // Increment angle for the next card
@@ -75,7 +95,7 @@ class SouthPlayerDeck extends Component {
                                     zIndex,
                                     '--rotation': `${rotation}`,
                                     transform: `rotate(var(--rotation)) translateY(${verticalOffset}px)`,
-                                     // Pass rotation as a custom property
+                                    // Pass rotation as a custom property
                                 }}
                                 onClick={() => this.props.playCard((card, index))}
                             >
