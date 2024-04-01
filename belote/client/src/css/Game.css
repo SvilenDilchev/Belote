@@ -124,6 +124,9 @@
     z-index: 1;
 
     --rotation: 0deg;
+
+    /* -webkit-filter: brightness(50%);
+    filter: brightness(50%); */
 }
 
 .MyCard:hover {

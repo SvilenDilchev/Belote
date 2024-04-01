@@ -178,85 +178,49 @@ class Game extends Component {
     }
 
     handleCardPlayed = (data) => {
-        switch (data.player.turn){
+        const playerKey = data.player.turn;
+        const updatedPlayerState = {
+            player: data.player,
+            cardPlayed: true,
+            card: data.card
+        };
+
+        const updatedCardsPlayed = {
+            ...this.state.cardsPlayed,
+        };
+    
+        let newState = {
+            cardsPlayed: updatedCardsPlayed
+        };
+
+        switch (playerKey) {
             case this.state.me.turn:
-                this.setState(prevState => ({
-                    me: data.player,
-                    cardsPlayed: {
-                        ...prevState.cardsPlayed,
-                        me: {
-                            player: data.player,
-                            cardPlayed: true,
-                            card: data.card
-                        }
-                    }
-                }), () => {
-                    console.log("noviq state --", this.state);
-                });
+                newState.cardsPlayed.me = updatedPlayerState;
+                newState = { ...newState, me: data.player };
                 break;
             case this.state.partner.turn:
-                this.setState(prevState => ({
-                    partner: data.player,
-                    cardsPlayed: {
-                        ...prevState.cardsPlayed,
-                        partner: {
-                            player: data.player,
-                            cardPlayed: true,
-                            card: data.card
-                        }
-                    }
-                }), () => {
-                    console.log("noviq state --", this.state);
-                });
+                newState.cardsPlayed.partner = updatedPlayerState;
+                newState = { ...newState, partner: data.player };
                 break;
             case this.state.opponentR.turn:
-                this.setState(prevState => ({
-                    opponentR: data.player,
-                    cardsPlayed: {
-                        ...prevState.cardsPlayed,
-                        opponentR: {
-                            player: data.player,
-                            cardPlayed: true,
-                            card: data.card
-                        }
-                    }
-                }), () => {
-                    console.log("noviq state --", this.state);
-                });
+                newState.cardsPlayed.opponentR = updatedPlayerState;
+                newState = { ...newState, opponentR: data.player };
+
                 break;
             case this.state.opponentL.turn:
-                this.setState(prevState => ({
-                    opponentL: data.player,
-                    cardsPlayed: {
-                        ...prevState.cardsPlayed,
-                        opponentL: {
-                            player: data.player,
-                            cardPlayed: true,
-                            card: data.card
-                        }
-                    }
-                }), () => {
-                    console.log("noviq state --", this.state);
-                });
+                newState.cardsPlayed.opponentL = updatedPlayerState;
+                newState = { ...newState, opponentL: data.player };
+
                 break;
             default:
                 break;
         }
-
-        this.setState(prevState => ({
-            cardsPlayed: {
-                ...prevState.cardsPlayed,
-                [data.player]: {
-                    ...prevState.cardsPlayed[data.player],
-                    cardPlayed: true,
-                    card: data.card
-                }
-            }
-        }), () => {
-            console.log("tva rukata li e --", data.card);
-            console.log("tva li si --", data.player);
-        });
+    
+        this.setState(newState);
     }
+    
+    
+    
 
     playCard(card, index){
         socket.emit('play_card', card, this.state.me);

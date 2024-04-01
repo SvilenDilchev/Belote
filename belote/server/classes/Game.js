@@ -60,7 +60,7 @@ class Game {
     createDeck() {
         for (const suit of cardLibrary.suits) {
             for (const rank of cardLibrary.ranks) {
-                this.fullDeck.push(cardLibrary.createCard(rank, suit, false, true));
+                this.fullDeck.push(cardLibrary.createCard(rank, suit, false, false));
             }
         }
     }

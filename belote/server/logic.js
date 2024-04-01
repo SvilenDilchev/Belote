@@ -8,7 +8,7 @@ const cardLibrary = {
     noTrumpRanks: ['7', '8', '9', 'Jack', 'Queen', 'King', '10', 'Ace'],
     allTrumpRanks: ['7', '8', 'Queen', 'King', '10', 'Ace', '9', 'Jack'],
 
-    createCard: function (rank, suit, isTrump = false, isPlayable = true) {
+    createCard: function (rank, suit, isTrump = false, isPlayable = false) {
         const card = {
             key: this.keyCounter++, // Assign the current key value and increment the counter
             rank,

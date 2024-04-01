@@ -36,7 +36,7 @@ class SouthPlayerDeck extends Component {
         const angleIncrement = 60 / (totalCards - 1); // Angle increment for arranging cards in a semi-circle
         let angle = -30; // Starting angle
 
-        if(this.state.cards.length === 1){
+        if (this.state.cards.length === 1) {
             angle = 0;
         }
 
@@ -64,14 +64,14 @@ class SouthPlayerDeck extends Component {
                                 }
                                 break;
                             case 6:
-                                if(index === 1 || index === 4){
+                                if (index === 1 || index === 4) {
                                     verticalOffset -= 4;
-                                }else if(index === 0 || index === 5){
+                                } else if (index === 0 || index === 5) {
                                     verticalOffset += 8;
                                 }
                                 break;
                             case 7:
-                                if(index === 1 || index === 2 || index === 4 || index === 5) {
+                                if (index === 1 || index === 2 || index === 4 || index === 5) {
                                     verticalOffset -= 14;
                                 }
                                 break;
@@ -95,9 +95,11 @@ class SouthPlayerDeck extends Component {
                                     zIndex,
                                     '--rotation': `${rotation}`,
                                     transform: `rotate(var(--rotation)) translateY(${verticalOffset}px)`,
+                                    WebkitFilter: `brightness(${card.isPlayable ? 100 : 75}%)`,
+                                    filter: `brightness(${card.isPlayable ? 100 : 75}%)`
                                     // Pass rotation as a custom property
                                 }}
-                                onClick={() => this.props.playCard((card, index))}
+                                onClick={card.isPlayable ? () => this.props.playCard((card, index)) : undefined}
                             >
                                 <img src={images[`${card.rank.toLowerCase()}_of_${card.suit.toLowerCase()}.png`]} alt={`${card.rank} of ${card.suit}`} />
                             </div>
