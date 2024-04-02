@@ -50,6 +50,8 @@ class Game extends Component {
             bidBoxActive: false,
             validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
             roundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
+            tempBid: null,
+            tempBidder: null,
             cardsPlayed: cardsPlayed
         };
     }
@@ -64,6 +66,7 @@ class Game extends Component {
         socket.on('display_card', this.handleCardPlayed);
         socket.on('ask_for_card', this.handleAskForCard);
         socket.on('reset_trick', this.handleResetTrick);
+        socket.on('update_temp_bid', this.handleTempBid);
     }
 
     componentWillUnmount() {
@@ -74,10 +77,10 @@ class Game extends Component {
         socket.off('deal_second_cards');
         socket.off('display_card');
         socket.off('ask_for_card');
+        socket.off('reset_trick');
     }
 
     componentDidUpdate(prevProps) {
-        console.log("Game updated");
         if (prevProps.game.roundNumber !== this.props.game.roundNumber) {
             this.setNewRound(this.props.game);
         }
@@ -145,7 +148,9 @@ class Game extends Component {
 
     sendBid(bid) {
         socket.emit('send_bid', bid);
-        this.setState({ bidBoxActive: false });
+        this.setState({
+            bidBoxActive: false,
+        });
     }
 
     handleDealFirstCards = (game) => {
@@ -160,12 +165,48 @@ class Game extends Component {
         }
     }
 
+    handleTempBid = (info) => {
+        if (info.bid !== 'Pass') {
+            if (info.bid === "Double") {
+                const newTempBid = this.state.tempBid + " x2";
+                this.setState(prevState => ({
+                    tempBid: newTempBid,
+                    tempBidder: info.player,
+                }));
+            }
+            else if (info.bid === "Redouble") {
+                const newTempBid = this.state.tempBid.slice(0, -3) + " x4";
+                this.setState(prevState => ({
+                    tempBid: newTempBid,
+                    tempBidder: info.player,
+                }));
+            }
+            else {
+                this.setState({
+                    tempBid: info.bid,
+                    tempBidder: info.player
+                });
+            }
+        }
+    }
+
     handleBiddingResult = (roundBiddingInfo) => {
+        var newRoundBiddingInfo = {
+            ...roundBiddingInfo,
+        }
+        if (roundBiddingInfo.multiplier !== 1) {
+            newRoundBiddingInfo = {
+                ...roundBiddingInfo,
+                gameBid: roundBiddingInfo.gameBid + ` x${roundBiddingInfo.multiplier}`
+            }
+        }
         this.setState(prevState => ({
             roundBiddingInfo: {
                 ...prevState.roundBiddingInfo,
-                ...roundBiddingInfo
-            }
+                ...newRoundBiddingInfo
+            },
+            tempBid: null,
+            tempBidder: null
         }), () => {
             if (this.state.roundBiddingInfo.gameBid !== 'Pass') {
                 if (this.state.me.turn === 3) {
@@ -267,7 +308,7 @@ class Game extends Component {
     }
 
     handleResetTrick = (game) => {
-        this.setState({ 
+        this.setState({
             ...this.state,
             cardsPlayed: {
                 me: {
@@ -334,7 +375,7 @@ class Game extends Component {
                 </div>
                 <div className='Row' id='TopRow'>
                     <div className='Col LeftCol' id='tlCell'>
-                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} gameBid={this.state.roundBiddingInfo.gameBid} />
+                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} gameBid={this.state.roundBiddingInfo.gameBid} bidder={this.state.roundBiddingInfo.biddingPlayer} tempBid={this.state.tempBid} tempBidder={this.state.tempBidder} />
                     </div>
                     <div className='Col MidCol' id='tmCell'>
                         <OtherPlayerDeck position={"North"} deck={partner.hand} />

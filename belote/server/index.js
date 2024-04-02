@@ -104,7 +104,15 @@ io.on('connection', (socket) => {
         game.team2 = gameData.team2;
         game.roundNumber = gameData.roundNumber;
 
-        game.roundBid = stateData.roundBiddingInfo.gameBid;
+        let gameBid = stateData.roundBiddingInfo.gameBid;
+
+        // Remove the last 3 characters if the gameBid ends with " x2" or " x4"
+        if (gameBid.endsWith(" x2") || gameBid.endsWith(" x4")) {
+            gameBid = gameBid.slice(0, -3);
+        }
+
+        game.roundBid = gameBid;
+        
         startPlayingRound(game, io);
     });
 

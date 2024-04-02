@@ -6,22 +6,37 @@ class Scoreboard extends Component {
         this.state = {
             usScore: props.usScore,
             themScore: props.themScore,
-            gameBid: props.gameBid
+            gameBid: props.gameBid,
+            tempBid: props.tempBid,
+            bidder: props.bidder,
+            tempBidder: props.tempBidder
         };
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.usScore !== this.props.usScore || prevProps.themScore !== this.props.themScore || prevProps.gameBid !== this.props.gameBid) {
+        if (prevProps.usScore !== this.props.usScore || prevProps.themScore !== this.props.themScore || prevProps.gameBid !== this.props.gameBid || prevProps.bidder !== this.props.bidder || prevProps.tempBid !== this.props.tempBid || prevProps.tempBidder !== this.props.tempBidder) {
             this.setState({
                 usScore: this.props.usScore,
                 themScore: this.props.themScore,
-                gameBid: this.props.gameBid
+                gameBid: this.props.gameBid,
+                tempBid: this.props.tempBid,
+                bidder: this.props.bidder,
+                tempBidder: this.props.tempBidder
+            }, () => {
+                console.log("state gameBid: " + this.state.gameBid);
+                console.log("state tempBid: " + this.state.tempBid);
+                console.log("state bidder: " + this.state.bidder);
+                console.log("state tempBidder: " + this.state.tempBidder);
             });
         }
     }
 
     render() {
-        const hasBid = this.state.gameBid !== null && this.state.gameBid !== 'Pass';
+        const hasBid = (this.state.gameBid !== null && this.state.gameBid !== 'Pass') || (this.state.tempBid !== null && this.state.tempBid !== 'Pass');
+        const hasFullBid = this.state.gameBid !== null && this.state.gameBid !== 'Pass';
+
+        console.log("hasbid: " + hasBid);
+        console.log("hasFullBid: " + hasFullBid);
 
         return (
             <div className='Scoreboard' id='scoreboard'>
@@ -49,7 +64,7 @@ class Scoreboard extends Component {
                     fontWeight: 'bold',
                     marginTop: '5px'
                 }}>
-                    {this.state.gameBid}
+                    {hasFullBid ? this.state.bidder.name : hasBid ? this.state.tempBidder.name : ""}: {hasFullBid ? this.state.gameBid : hasBid ? this.state.tempBid : ""}
                 </div>
             </div>
         );

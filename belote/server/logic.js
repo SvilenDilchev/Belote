@@ -150,7 +150,11 @@ const getBiddingResult = (gameData, io, passCount = 0, bidCount = 0, currentPlay
 
         socket.once('send_bid', (bid) => {
             bid = bid;
-
+            tempBidInfo = {
+                player: player,
+                bid: bid
+            }
+            io.to(gameData.room.roomID).emit('update_temp_bid', (tempBidInfo));
             doubleBreak: if (bid === 'Pass') {
                 passCount++;
             } else {
