@@ -130,6 +130,21 @@ class Game {
 
         this.resetTeamsAfterDealing();
     }
+
+    getTeammate(player) {
+        if (this.team1.player1.socketID === player.socketID) {
+            return this.team1.player2;
+        } else if (this.team1.player2.socketID === player.socketID) {
+            return this.team1.player1;
+        } else if (this.team2.player1.socketID === player.socketID) {
+            return this.team2.player2;
+        } else if (this.team2.player2.socketID === player.socketID) {
+            return this.team2.player1;
+        } else {
+            // Player not found in any team
+            return null;
+        }
+    }
 }
 
 module.exports = Game;

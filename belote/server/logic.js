@@ -93,6 +93,8 @@ const cardLibrary = {
         return deck.map(card => {
             if (card.suit === gameBid || gameBid === 'All Trumps') {
                 card.isTrump = true;
+            } else {
+                card.isTrump = false;
             }
             return card;
         });
@@ -140,6 +142,12 @@ const cardLibrary = {
         const rankIndex2 = this.allTrumpRanks.indexOf(card2.rank);
         return rankIndex2 - rankIndex1;
     },
+
+    compareRankNonTrump(card1, card2) {
+        const rankIndex1 = this.noTrumpRanks.indexOf(card1.rank);
+        const rankIndex2 = this.noTrumpRanks.indexOf(card2.rank);
+        return rankIndex2 - rankIndex1;
+    }
 };
 
 const getBiddingResult = (gameData, io, passCount = 0, bidCount = 0, currentPlayerIndex = 0, gameBid = 'Pass', biddingPlayer = null, validBids = ['Clubs', 'Diamonds', 'Hearts', 'Spades', 'No Trumps', 'All Trumps'], multiplier = 1, bid = 'Pass', hasEmited = false) => {
@@ -211,7 +219,7 @@ const getBiddingResult = (gameData, io, passCount = 0, bidCount = 0, currentPlay
     processBidding(); // Start the bidding process
 };
 
-const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, currentTaker) => {
+const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, currentTaker, game) => {
     if (gameBid === 'All Trumps') {
         if (player.hand.some(card => card.suit === requestedSuit)) {
             let hasOverTrump = false;
@@ -237,6 +245,101 @@ const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, curren
             player.hand.forEach(card => {
                 card.isPlayable = true;
             });
+        }
+    } else if (gameBid === 'No Trumps') {
+        if(player.hand.some(card => card.suit === requestedSuit)){
+            player.hand.forEach(card => {
+                if (card.suit === requestedSuit) {
+                    card.isPlayable = true;
+                }else{
+                    card.isPlayable = false;
+                }
+            });
+        }else{
+            player.hand.forEach(card => {
+                card.isPlayable = true;
+            });
+        }
+    } else {
+        if(player.hand.some(card => card.suit === requestedSuit)){
+            player.hand.forEach(card => {
+                if (card.suit !== requestedSuit) {
+                    card.isPlayable = false;
+                }
+            });
+            if(requestedSuit === gameBid){
+                let hasOverTrump = false;
+                player.hand.forEach(card => {
+                    if (card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, card) > 0) {
+                        hasOverTrump = true;
+                    }
+                });
+                if (hasOverTrump) {
+                    player.hand.forEach(card => {
+                        if (card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, card) > 0) {
+                            card.isPlayable = true;
+                        }else{
+                            card.isPlayable = false;
+                        }
+                    })
+                }else{
+                    player.hand.forEach(card => {
+                        if (card.suit === requestedSuit) {
+                            card.isPlayable = true;
+                        }else{
+                            card.isPlayable = false;
+                        }
+                    });
+                }
+            }else{
+                player.hand.forEach(card => {
+                    if (card.suit === requestedSuit) {
+                        card.isPlayable = true;
+                    }else{
+                        card.isPlayable = false;
+                    }
+                });
+            }
+        } else {
+            if(currentTaker.socketID !== game.getTeammate(player).socketID){
+                if(!player.hand.some(card => card.isTrump)){
+                    player.hand.forEach(card => {
+                        card.isPlayable = true;
+                    });
+                }else{
+                    if(winningCard.isTrump){
+
+                        let hasOverTrump = false;
+                        player.hand.forEach(card => {
+                            if (card.isTrump && cardLibrary.compareRankTrump(winningCard, card) > 0) {
+                                hasOverTrump = true;
+                            }
+                        });
+
+                        if (hasOverTrump) {
+                            player.hand.forEach(card => {
+                                if (card.isTrump && cardLibrary.compareRankTrump(winningCard, card) > 0) {
+                                    card.isPlayable = true;
+                                }else{
+                                    card.isPlayable = false;
+                                }
+                            })
+                        }
+                    }else{
+                        player.hand.forEach(card => {
+                            if (card.isTrump) {
+                                card.isPlayable = true;
+                            }else{
+                                card.isPlayable = false;
+                            }
+                        });
+                    }
+                }
+            }else{
+                player.hand.forEach(card => {
+                    card.isPlayable = true;
+                });
+            }
         }
     }
 }
@@ -288,7 +391,7 @@ const startTrick = (game, io, trickNumber) => {
 
     function askP1(io, game, requestedSuit, winningCard) {
         var player = game.room.players.find(player => player.trickTurn === 1);
-        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker);
+        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker, game);
         io.to(player.socketID).emit('ask_for_card', player);
         var socket = io.sockets.sockets.get(player.socketID);
         socket.once('t1_play_card', (card, player) => {
@@ -299,9 +402,35 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
-                winningCard = data.card;
-                currentTaker = player;
+            if(game.roundBid === 'All Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else if(game.roundBid === 'No Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else{
+                if (!winningCard.isTrump){
+                    if (!data.card.isTrump){
+                        if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }else{
+                        winningCard = data.card;
+                        currentTaker = player;
+                    }
+                }else{
+                    if(data.card.isTrump){
+                        if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }
+                }
             }
             cardLibrary.resetCardsToUnplayable(player.hand);
             io.to(player.roomID).emit('display_card', (data));
@@ -311,7 +440,7 @@ const startTrick = (game, io, trickNumber) => {
 
     function askP2(io, game, requestedSuit, winningCard) {
         player = game.room.players.find(player => player.trickTurn === 2);
-        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker);
+        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker, game);
         io.to(player.socketID).emit('ask_for_card', player);
         socket = io.sockets.sockets.get(player.socketID);
         socket.once('t2_play_card', (card, player) => {
@@ -322,9 +451,35 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(data.card, winningCard) < 0) {
-                winningCard = data.card;
-                currentTaker = player;
+            if(game.roundBid === 'All Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else if(game.roundBid === 'No Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else{
+                if (!winningCard.isTrump){
+                    if (!data.card.isTrump){
+                        if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }else{
+                        winningCard = data.card;
+                        currentTaker = player;
+                    }
+                }else{
+                    if(data.card.isTrump){
+                        if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }
+                }
             }
 
             cardLibrary.resetCardsToUnplayable(player.hand);
@@ -335,7 +490,7 @@ const startTrick = (game, io, trickNumber) => {
 
     function askP3(io, game, requestedSuit, winningCard) {
         player = game.room.players.find(player => player.trickTurn === 3);
-        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker);
+        updatePlayableCards(game.roundBid, player, requestedSuit, winningCard, currentTaker, game);
         io.to(player.socketID).emit('ask_for_card', player);
         socket = io.sockets.sockets.get(player.socketID);
         socket.once('t3_play_card', (card, player) => {
@@ -346,9 +501,35 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(data.card, winningCard) < 0) {
-                winningCard = data.card;
-                currentTaker = player;
+            if(game.roundBid === 'All Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else if(game.roundBid === 'No Trumps'){
+                if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                    winningCard = data.card;
+                    currentTaker = player;
+                }
+            }else{
+                if (!winningCard.isTrump){
+                    if (!data.card.isTrump){
+                        if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }else{
+                        winningCard = data.card;
+                        currentTaker = player;
+                    }
+                }else{
+                    if(data.card.isTrump){
+                        if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
+                            winningCard = data.card;
+                            currentTaker = player;
+                        }
+                    }
+                }
             }
             cardLibrary.resetCardsToUnplayable(player.hand);
             io.to(player.roomID).emit('display_card', (data));
