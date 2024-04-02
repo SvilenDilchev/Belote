@@ -7,6 +7,7 @@ class Player{
     isInGame = false;
     hand = [];
     turn = 0;
+    trickTurn = 0;
 
     constructor(socketID){
         this.socketID = socketID;

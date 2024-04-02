@@ -31,10 +31,10 @@ class PlayArea extends Component {
 
         // Define zIndex for each player
         const zIndexMap = {
-            me: cardsPlayed.me.player.turn + 2,
-            opponentR: cardsPlayed.opponentR.player.turn + 2,
-            opponentL: cardsPlayed.opponentL.player.turn + 2,
-            partner: cardsPlayed.partner.player.turn + 2
+            me: cardsPlayed.me.player.trickTurn + 2,
+            opponentR: cardsPlayed.opponentR.player.trickTurn + 2,
+            opponentL: cardsPlayed.opponentL.player.trickTurn + 2,
+            partner: cardsPlayed.partner.player.trickTurn + 2
         };
 
         // Set zIndex based on player's turn

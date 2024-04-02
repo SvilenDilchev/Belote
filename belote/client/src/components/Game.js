@@ -16,7 +16,7 @@ class Game extends Component {
         const { me, partner, opponentR, opponentL } = this.getPlayers(socket, team1, team2);
 
         const cardsPlayed = {
-            me: { 
+            me: {
                 player: me,
                 cardPlayed: false,
                 card: null,
@@ -49,28 +49,35 @@ class Game extends Component {
             opponentL,
             bidBoxActive: false,
             validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
-            roundRoundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
+            roundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
             cardsPlayed: cardsPlayed
         };
     }
 
     componentDidMount() {
+        console.log("Game mounted");
         this.startGame();
         socket.on('deal_first_cards', this.handleDealFirstCards);
         socket.on('request_bid', this.handleRequestBid);
         socket.on('bidding_result', this.handleBiddingResult);
         socket.on('deal_second_cards', this.handleDealSecondCards);
         socket.on('display_card', this.handleCardPlayed);
+        socket.on('ask_for_card', this.handleAskForCard);
+        socket.on('reset_trick', this.handleResetTrick);
     }
 
     componentWillUnmount() {
+        console.log("Game unmounted");
         socket.off('deal_first_cards');
         socket.off('request_bid');
         socket.off('bidding_result');
         socket.off('deal_second_cards');
+        socket.off('display_card');
+        socket.off('ask_for_card');
     }
 
-    componentDidUpdate(prevState, prevProps) {
+    componentDidUpdate(prevProps) {
+        console.log("Game updated");
         if (prevProps.game.roundNumber !== this.props.game.roundNumber) {
             this.setNewRound(this.props.game);
         }
@@ -143,7 +150,7 @@ class Game extends Component {
 
     handleDealFirstCards = (game) => {
         this.handleNewState(game);
-        setTimeout(() => this.requestBids(), 5000);
+        setTimeout(() => this.requestBids(), 3000);
     }
 
     handleRequestBid = (player, validBids) => {
@@ -153,14 +160,14 @@ class Game extends Component {
         }
     }
 
-    handleBiddingResult = (roundRoundBiddingInfo) => {
+    handleBiddingResult = (roundBiddingInfo) => {
         this.setState(prevState => ({
-            roundRoundBiddingInfo: {
-                ...prevState.roundRoundBiddingInfo,
-                ...roundRoundBiddingInfo
+            roundBiddingInfo: {
+                ...prevState.roundBiddingInfo,
+                ...roundBiddingInfo
             }
         }), () => {
-            if (this.state.roundRoundBiddingInfo.gameBid !== 'Pass') {
+            if (this.state.roundBiddingInfo.gameBid !== 'Pass') {
                 if (this.state.me.turn === 3) {
                     this.deal3Cards();
                 }
@@ -173,11 +180,15 @@ class Game extends Component {
     handleDealSecondCards = (game) => {
         this.handleNewState(game);
         setTimeout(() => {
-            // Add actual play functionality here
-        }, 5000);
+            if (this.state.me.turn === 3) {
+                console.log('emiting play round');
+                socket.emit('play_round', this.state);
+            }
+        }, 3000);
     }
 
     handleCardPlayed = (data) => {
+        console.log("card was played -- ", data)
         const playerKey = data.player.turn;
         const updatedPlayerState = {
             player: data.player,
@@ -188,7 +199,7 @@ class Game extends Component {
         const updatedCardsPlayed = {
             ...this.state.cardsPlayed,
         };
-    
+
         let newState = {
             cardsPlayed: updatedCardsPlayed
         };
@@ -215,17 +226,26 @@ class Game extends Component {
             default:
                 break;
         }
-    
-        this.setState(newState);
-    }
-    
-    
-    
 
-    playCard(card, index){
-        socket.emit('play_card', card, this.state.me);
-        console.log(card);
-        //TODO: emit play card
+        this.setState(newState, function () {
+
+        });
+    }
+
+    handleAskForCard = (player) => {
+        if (this.state.me.socketID === player.socketID) {
+            this.setState({
+                game: {
+                    ...this.state.game,
+                    me: player
+                },
+                me: player
+            });
+        }
+    }
+
+    playCard(card) {
+        socket.emit(`t${this.state.me.trickTurn}_play_card`, card, this.state.me);
     }
 
     handleNewState(game) {
@@ -243,6 +263,34 @@ class Game extends Component {
             partner,
             opponentR,
             opponentL
+        });
+    }
+
+    handleResetTrick = (game) => {
+        this.setState({ 
+            ...this.state,
+            cardsPlayed: {
+                me: {
+                    player: this.state.me,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentR: {
+                    player: this.state.opponentR,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentL: {
+                    player: this.state.opponentL,
+                    cardPlayed: false,
+                    card: null,
+                },
+                partner: {
+                    player: this.state.partner,
+                    cardPlayed: false,
+                    card: null,
+                }
+            }
         });
     }
 
@@ -268,7 +316,7 @@ class Game extends Component {
             opponentL,
             bidBoxActive: false,
             validBids: ["Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps", "Pass"],
-            roundRoundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 }
+            roundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 }
         };
 
         this.setState(newState, () => {
@@ -286,7 +334,7 @@ class Game extends Component {
                 </div>
                 <div className='Row' id='TopRow'>
                     <div className='Col LeftCol' id='tlCell'>
-                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} gameBid={this.state.roundRoundBiddingInfo.gameBid}/>
+                        <Scoreboard usScore={us.totalPoints} themScore={them.totalPoints} gameBid={this.state.roundBiddingInfo.gameBid} />
                     </div>
                     <div className='Col MidCol' id='tmCell'>
                         <OtherPlayerDeck position={"North"} deck={partner.hand} />
@@ -300,7 +348,7 @@ class Game extends Component {
                         <OtherPlayerDeck position={"West"} deck={opponentL.hand} />
                     </div>
                     <div className='Col MidCol' id='mmCell'>
-                        <PlayArea cardsPlayed={this.state.cardsPlayed}/>
+                        <PlayArea cardsPlayed={this.state.cardsPlayed} />
                     </div>
                     <div className='Col RightCol' id='mrCell'>
                         <OtherPlayerDeck position={"East"} deck={opponentR.hand} />

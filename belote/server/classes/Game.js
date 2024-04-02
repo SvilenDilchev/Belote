@@ -9,6 +9,7 @@ class Game {
     team1 = null;
     team2 = null;
     roundNumber = 0;
+    roundBid = '';
 
     constructor(room) {
         this.room = room;

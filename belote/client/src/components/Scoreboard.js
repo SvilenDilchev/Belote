@@ -22,8 +22,6 @@ class Scoreboard extends Component {
 
     render() {
         const hasBid = this.state.gameBid !== null && this.state.gameBid !== 'Pass';
-        console.log('hasBid', hasBid)
-        console.log('gameBid', this.state.gameBid)
 
         return (
             <div className='Scoreboard' id='scoreboard'>
