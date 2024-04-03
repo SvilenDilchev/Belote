@@ -1,3 +1,5 @@
+const e = require("express");
+
 const cardLibrary = {
 
     keyCounter: 0, // Initialize a key counter
@@ -247,27 +249,27 @@ const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, curren
             });
         }
     } else if (gameBid === 'No Trumps') {
-        if(player.hand.some(card => card.suit === requestedSuit)){
+        if (player.hand.some(card => card.suit === requestedSuit)) {
             player.hand.forEach(card => {
                 if (card.suit === requestedSuit) {
                     card.isPlayable = true;
-                }else{
+                } else {
                     card.isPlayable = false;
                 }
             });
-        }else{
+        } else {
             player.hand.forEach(card => {
                 card.isPlayable = true;
             });
         }
     } else {
-        if(player.hand.some(card => card.suit === requestedSuit)){
+        if (player.hand.some(card => card.suit === requestedSuit)) {
             player.hand.forEach(card => {
                 if (card.suit !== requestedSuit) {
                     card.isPlayable = false;
                 }
             });
-            if(requestedSuit === gameBid){
+            if (requestedSuit === gameBid) {
                 let hasOverTrump = false;
                 player.hand.forEach(card => {
                     if (card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, card) > 0) {
@@ -278,36 +280,36 @@ const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, curren
                     player.hand.forEach(card => {
                         if (card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, card) > 0) {
                             card.isPlayable = true;
-                        }else{
+                        } else {
                             card.isPlayable = false;
                         }
                     })
-                }else{
+                } else {
                     player.hand.forEach(card => {
                         if (card.suit === requestedSuit) {
                             card.isPlayable = true;
-                        }else{
+                        } else {
                             card.isPlayable = false;
                         }
                     });
                 }
-            }else{
+            } else {
                 player.hand.forEach(card => {
                     if (card.suit === requestedSuit) {
                         card.isPlayable = true;
-                    }else{
+                    } else {
                         card.isPlayable = false;
                     }
                 });
             }
         } else {
-            if(currentTaker.socketID !== game.getTeammate(player).socketID){
-                if(!player.hand.some(card => card.isTrump)){
+            if (currentTaker.socketID !== game.getTeammate(player).socketID) {
+                if (!player.hand.some(card => card.isTrump)) {
                     player.hand.forEach(card => {
                         card.isPlayable = true;
                     });
-                }else{
-                    if(winningCard.isTrump){
+                } else {
+                    if (winningCard.isTrump) {
 
                         let hasOverTrump = false;
                         player.hand.forEach(card => {
@@ -320,22 +322,26 @@ const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, curren
                             player.hand.forEach(card => {
                                 if (card.isTrump && cardLibrary.compareRankTrump(winningCard, card) > 0) {
                                     card.isPlayable = true;
-                                }else{
+                                } else {
                                     card.isPlayable = false;
                                 }
                             })
+                        }else{
+                            player.hand.forEach(card => {
+                                card.isPlayable = true;
+                            });
                         }
-                    }else{
+                    } else {
                         player.hand.forEach(card => {
                             if (card.isTrump) {
                                 card.isPlayable = true;
-                            }else{
+                            } else {
                                 card.isPlayable = false;
                             }
                         });
                     }
                 }
-            }else{
+            } else {
                 player.hand.forEach(card => {
                     card.isPlayable = true;
                 });
@@ -402,29 +408,29 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if(game.roundBid === 'All Trumps'){
+            if (game.roundBid === 'All Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else if(game.roundBid === 'No Trumps'){
+            } else if (game.roundBid === 'No Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else{
-                if (!winningCard.isTrump){
-                    if (!data.card.isTrump){
+            } else {
+                if (!winningCard.isTrump) {
+                    if (!data.card.isTrump) {
                         if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
                         }
-                    }else{
+                    } else {
                         winningCard = data.card;
                         currentTaker = player;
                     }
-                }else{
-                    if(data.card.isTrump){
+                } else {
+                    if (data.card.isTrump) {
                         if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
@@ -451,29 +457,29 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if(game.roundBid === 'All Trumps'){
+            if (game.roundBid === 'All Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else if(game.roundBid === 'No Trumps'){
+            } else if (game.roundBid === 'No Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else{
-                if (!winningCard.isTrump){
-                    if (!data.card.isTrump){
+            } else {
+                if (!winningCard.isTrump) {
+                    if (!data.card.isTrump) {
                         if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
                         }
-                    }else{
+                    } else {
                         winningCard = data.card;
                         currentTaker = player;
                     }
-                }else{
-                    if(data.card.isTrump){
+                } else {
+                    if (data.card.isTrump) {
                         if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
@@ -501,29 +507,29 @@ const startTrick = (game, io, trickNumber) => {
             }
             player.hand.splice(selectedCardIndex, 1);
             cardsPlayed.push(data.card);
-            if(game.roundBid === 'All Trumps'){
+            if (game.roundBid === 'All Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else if(game.roundBid === 'No Trumps'){
+            } else if (game.roundBid === 'No Trumps') {
                 if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                     winningCard = data.card;
                     currentTaker = player;
                 }
-            }else{
-                if (!winningCard.isTrump){
-                    if (!data.card.isTrump){
+            } else {
+                if (!winningCard.isTrump) {
+                    if (!data.card.isTrump) {
                         if (data.card.suit === requestedSuit && cardLibrary.compareRankNonTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
                         }
-                    }else{
+                    } else {
                         winningCard = data.card;
                         currentTaker = player;
                     }
-                }else{
-                    if(data.card.isTrump){
+                } else {
+                    if (data.card.isTrump) {
                         if (cardLibrary.compareRankTrump(winningCard, data.card) > 0) {
                             winningCard = data.card;
                             currentTaker = player;
@@ -578,16 +584,260 @@ const startTrick = (game, io, trickNumber) => {
             console.log("t1 points: ", game.team1.roundPoints);
             console.log("t2 points: ", game.team2.roundPoints);
             console.log("end of round");
+
+            if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
+                game.team1.roundPoints += 10;
+            } else {
+                game.team2.roundPoints += 10;
+            }
+            var gameResult = calculatePoints(game);
+
+            if(gameResult.hangingPoints === 0){
+                gameResult.winners.totalPoints += game.hangingPoints;
+                game.hangingPoints = 0;
+            }else{
+                game.hangingPoints += gameResult.hangingPoints;
+            }
+
+            console.log("gameResult: ", gameResult);
+            console.log("game.team1.totalPoints: ", game.team1.totalPoints);
+            console.log("game.team2.totalPoints: ", game.team2.totalPoints);
+
             setTimeout(() => {
-                io.emit('reset_trick', game);
+                io.to(game.room.roomID).emit('end_round', game);
             }, 3000);
         }
     }
 }
 
+const calculatePoints = (game) => {
+    var bidTeam = null;
+    var otherTeam = null;
+    var declarationPoints = 0;
+    var roundResult = null;
+    var hangingPoints = 0;
+
+    console.log("bidder: ", game.roundBidder.socketID);
+    console.log("game.team1.player1: ", game.team1.player1.socketID);
+    console.log("game.team1.player2: ", game.team1.player2.socketID);
+    console.log("game.team2.player1: ", game.team2.player1.socketID);
+    console.log("game.team2.player2: ", game.team2.player2.socketID);
+
+    if (game.team1.player1.socketID === game.roundBidder.socketID || game.team1.player2.socketID === game.roundBidder.socketID) {
+        console.log("bidder is in team 1");
+        bidTeam = game.team1;
+        otherTeam = game.team2;
+    } else if (game.team2.player1.socketID === game.roundBidder.socketID || game.team2.player2.socketID === game.roundBidder.socketID) {
+        console.log("bidder is in team 2");
+        bidTeam = game.team2;
+        otherTeam = game.team1;
+    }
+
+    var totalRoundScore = bidTeam.roundPoints + otherTeam.roundPoints;
+
+    console.log("bid team: ", bidTeam);
+    console.log("other team: ", otherTeam);
+    console.log("total round points: ", totalRoundScore);
+
+    if (game.roundBid === 'No Trumps') {
+        bidTeam.roundPoints *= 2;
+        otherTeam.roundPoints *= 2;
+        totalRoundScore *= 2;
+    }
+
+    if (bidTeam.roundPoints > totalRoundScore / 2) {
+        console.log("game taken");
+
+        if (bidTeam.roundPoints !== totalRoundScore) {
+            if (game.roundMultiplier !== 1) {
+                console.log("Double");
+
+                switch (game.roundBid) {
+                    case "No Trumps":
+                        bidTeam.totalPoints += 26 * game.roundMultiplier;
+                        roundResult = {
+                            winners: bidTeam,
+                            hangingPoints: hangingPoints
+                        }
+                        return roundResult;
+                    case "All Trumps":
+                        bidTeam.totalPoints += 26 * game.roundMultiplier + declarationPoints;
+                        roundResult = {
+                            winners: winners,
+                            hangingPoints: hangingPoints
+                        }
+                        return roundResult;
+                    default:
+                        bidTeam.totalPoints += 16 * game.roundMultiplier + declarationPoints;
+                        gameResult = {
+                            winners: bidTeam,
+                            hangingPoints: hangingPoints
+                        }
+                        return roundResult;
+                }
+            }
+        } else {
+            bidTeam.roundPoints += 90;
+        }
+
+        bidTeamHardPoints = Math.floor(bidTeam.roundPoints / 10);
+        bidTeamLastDigit = bidTeam.roundPoints % 10;
+
+        otherTeamHardPoints = Math.floor(otherTeam.roundPoints / 10);
+        otherTeamLastDigit = otherTeam.roundPoints % 10;
+
+        let roundingIndex = 0;
+        switch (game.roundBid) {
+            case "No Trumps":
+                roundingIndex = 5;
+                break;
+            case "All Trumps":
+                roundingIndex = 4;
+                break;
+            default:
+                roundingIndex = 6;
+                break;
+        }
+
+        var addedExtra = false;
+        if (bidTeamLastDigit >= roundingIndex) {
+            if (bidTeamLastDigit === otherTeamLastDigit) {
+                if (bidTeamHardPoints < otherTeamHardPoints) {
+                    bidTeamHardPoints++;
+                } else {
+                    otherTeamHardPoints++;
+                }
+                addedExtra = true;
+            } else {
+                bidTeamHardPoints++;
+            }
+        }
+        if (otherTeamLastDigit >= roundingIndex && !addedExtra) {
+            otherTeamHardPoints++;
+        }
+
+        bidTeam.totalPoints += bidTeamHardPoints;
+        otherTeam.totalPoints += otherTeamHardPoints;
+
+        gameResult = {
+            winners: bidTeam,
+            hangingPoints: hangingPoints
+        }
+    } else if (bidTeam.roundPoints < totalRoundScore / 2) {
+        console.log("game inside");
+
+        if (bidTeam.roundPoints !== 0) {
+            if (game.roundMultiplier !== 1) {
+                console.log("Double")
+                switch (game.roundBid) {
+                    case "No Trumps":
+                        otherTeam.totalPoints += 26 * game.roundMultiplier;
+                        gameResult = {
+                            winners: otherTeam,
+                            hangingPoints: hangingPoints
+                        }
+                        return gameResult;
+                    case "All Trumps":
+                        otherTeam.totalPoints += 26 * game.roundMultiplier + declarationPoints;
+                        gameResult = {
+                            winners: otherTeam,
+                            hangingPoints: hangingPoints
+                        }
+                        return gameResult;
+                    default:
+                        otherTeam.totalPoints += 16 * game.roundMultiplier + declarationPoints;
+                        gameResult = {
+                            winners: winners,
+                            hangingPoints: hangingPoints
+                        }
+                        return gameResult;
+                }
+            }
+        }else{
+            totalRoundScore += 90;
+        }
+        switch (gameType) {
+            case "No Trumps":
+                otherTeam.totalPoints += totalRoundScore / 10;
+                break;
+            case "All Trumps":
+                otherTeam.totalPoints += Math.ceil(totalRoundScore / 10);
+                break;
+            default:
+                otherTeam.totalPoints += Math.floor(totalRoundScore / 10);
+                break;
+        }
+        gameResult = {
+            winners: otherTeam,
+            hangingPoints: hangingPoints
+        }
+    } else {
+        console.log("game hanging");
+
+        if(game.roundMultiplier !== 1){
+            console.log("Double")
+            switch (game.roundBid) {
+                case "No Trumps":
+                    otherTeam.totalPoints += 13 * game.roundMultiplier;
+                    hangingPoints += 13 * game.roundMultiplier;
+                    gameResult = {
+                        winners: null,
+                        hangingPoints: hangingPoints
+                    }
+                    return gameResult;
+                case "All Trumps":
+                    otherTeam.totalPoints += 13 * game.roundMultiplier + (declarationPoints / 2);
+                    hangingPoints += 13 * game.roundMultiplier + (declarationPoints / 2);
+                    gameResult = {
+                        winners: null,
+                        hangingPoints: hangingPoints
+                    }
+                    return gameResult;
+                default:
+                    otherTeam.totalPoints += 8 * game.roundMultiplier + (declarationPoints / 2);
+                    hangingPoints += 8 * game.roundMultiplier + (declarationPoints / 2);
+                    gameResult = {
+                        winners: null,
+                        hangingPoints: hangingPoints
+                    }
+                    return gameResult;
+            }
+        }
+
+        switch (game.roundBid) {
+            case "No Trumps":
+                otherTeam.totalPoints += totalRoundScore / 20;
+                hangingPoints = totalRoundScore / 20;
+                break;
+            case "All Trumps":
+                otherTeam.totalPoints += Math.ceil(totalRoundScore / 20);
+                hangingPoints = Math.ceil(totalRoundScore / 20);
+                break;
+            default:
+                otherTeam.totalPoints += Math.floor(totalRoundScore / 20);
+                hangingPoints += Math.floor(totalRoundScore / 20);
+                if(otherTeam.roundPoints % 10 === 6){
+                    otherTeam.totalPoints++;
+                    hangingPoints++;
+                }
+                break;
+        }
+        gameResult = {
+            winners: null,
+            hangingPoints: hangingPoints
+        }
+    }
+
+    bidTeam.roundPoints = 0;
+    otherTeam.roundPoints = 0;
+
+    console.log("bid team points: ", bidTeam.totalPoints);
+    console.log("other team points: ", otherTeam.totalPoints);
+
+    return gameResult;
+}
 
 const setTrickTurns = (game, currentTaker) => {
-
 
     const firstPlayer = game.room.players.find(player => player.socketID === currentTaker.socketID);
     const playerIndex = game.room.players.indexOf(firstPlayer);

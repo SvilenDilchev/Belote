@@ -1,6 +1,8 @@
 
 class Team{
     
+    teamID = 0;
+
     player1 = null; 
     player2 = null;
 

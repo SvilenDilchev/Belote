@@ -1114,6 +1114,7 @@ function calculatePoints(currentTaker, bidder, players, gameType, multiplier) {
                 break;
         }
 
+        var addedExtra = false;
         if(bidderLastPointValue >= roundingIndex){
             if(bidderLastPointValue === opponentLastPointValue){
                 if (bidderHardPoints < opponetHardPoints) {
@@ -1121,11 +1122,12 @@ function calculatePoints(currentTaker, bidder, players, gameType, multiplier) {
                 } else {
                     opponetHardPoints += 1;
                 }
+                addedExtra = true;
             }else{
                 bidderHardPoints += 1;
             }
         }
-        if(opponentLastPointValue >= roundingIndex){
+        if(opponentLastPointValue >= roundingIndex && !addedExtra){
             opponetHardPoints += 1;
         }
 

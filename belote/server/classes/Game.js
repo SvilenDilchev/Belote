@@ -10,6 +10,10 @@ class Game {
     team2 = null;
     roundNumber = 0;
     roundBid = '';
+    roundBidder = null;
+    roundMultiplier = 1;
+
+    hangingPoints = 0;
 
     constructor(room) {
         this.room = room;
@@ -29,7 +33,9 @@ class Game {
         const p4 = 6 - p1 - p2 - p3;
 
         this.team1 = new Team(this.room.players[p1], this.room.players[p3]);
+        this.team1.teamID = 1;
         this.team2 = new Team(this.room.players[p2], this.room.players[p4]);
+        this.team2.teamID = 2;
 
         this.setTurns();
     }

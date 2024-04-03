@@ -103,6 +103,7 @@ io.on('connection', (socket) => {
         game.team1 = gameData.team1;
         game.team2 = gameData.team2;
         game.roundNumber = gameData.roundNumber;
+        game.hangingPoints = gameData.hangingPoints;
 
         let gameBid = stateData.roundBiddingInfo.gameBid;
 
@@ -112,7 +113,13 @@ io.on('connection', (socket) => {
         }
 
         game.roundBid = gameBid;
-        
+        game.roundBidder = stateData.roundBiddingInfo.biddingPlayer;
+        game.roundMultiplier = stateData.roundBiddingInfo.multiplier;
+
+        console.log("Game bid: ", game.roundBid);
+        console.log("Game bidder: ", game.roundBidder);
+        console.log("Game multiplier: ", game.roundMultiplier);
+
         startPlayingRound(game, io);
     });
 

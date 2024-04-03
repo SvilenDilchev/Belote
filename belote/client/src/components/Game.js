@@ -67,6 +67,7 @@ class Game extends Component {
         socket.on('ask_for_card', this.handleAskForCard);
         socket.on('reset_trick', this.handleResetTrick);
         socket.on('update_temp_bid', this.handleTempBid);
+        socket.on('end_round', this.handleEndRound);
     }
 
     componentWillUnmount() {
@@ -78,6 +79,7 @@ class Game extends Component {
         socket.off('display_card');
         socket.off('ask_for_card');
         socket.off('reset_trick');
+        socket.off('update_temp_bid');
     }
 
     componentDidUpdate(prevProps) {
@@ -303,7 +305,7 @@ class Game extends Component {
             me,
             partner,
             opponentR,
-            opponentL
+            opponentL            
         });
     }
 
@@ -332,6 +334,52 @@ class Game extends Component {
                     card: null,
                 }
             }
+        });
+    }
+
+    handleEndRound = (game) => {
+        const { socket } = this.props;
+        const { team1, team2 } = game;
+        const { us, them } = this.getTeams(socket, team1, team2);
+        const { me, partner, opponentR, opponentL } = this.getPlayers(socket, team1, team2);
+        this.setState({
+            ...this.state,
+            game: game,
+            us,
+            them,
+            me,
+            partner,
+            opponentR,
+            opponentL,
+            cardsPlayed: {
+                me: {
+                    player: this.state.me,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentR: {
+                    player: this.state.opponentR,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentL: {
+                    player: this.state.opponentL,
+                    cardPlayed: false,
+                    card: null,
+                },
+                partner: {
+                    player: this.state.partner,
+                    cardPlayed: false,
+                    card: null,
+                }
+            }
+        }, () => {
+            console.log("End of round");
+            console.log("state -- ", this.state);
+
+            
+
+            this.endRound();
         });
     }
 
