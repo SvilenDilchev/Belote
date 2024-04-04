@@ -5,20 +5,25 @@ class BidBox extends Component {
         super(props);
         this.state = {
             isActive: props.isActive,
-            validBids: props.validBids
+            validBids: props.validBids,
+            partner: props.partner,
+            tempBidder: props.tempBidder
         };
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.isActive !== this.props.isActive) {
+        if (prevProps.isActive !== this.props.isActive || prevProps.tempBidder !== this.props.tempBidder) {
             this.setState({
                 isActive: this.props.isActive,
-                validBids: this.props.validBids
+                validBids: this.props.validBids,
+                partner: this.props.partner,
+                tempBidder: this.props.tempBidder
             });
         }
     }
 
     render() {
+        const canDouble = this.state.tempBidder && this.state.tempBidder.socketID !== this.state.partner.socketID
 
         return (
             <div>
@@ -53,8 +58,8 @@ class BidBox extends Component {
                         <div className={`BidField LeftField active`} id="bidField" onClick={() => this.props.sendBid("Pass")}>
                             Pass
                         </div>
-                        <div className={`BidField RightField ${this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble") ? "active" : ""}`} id="bidField"
-                            onClick={(this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble")) && this.state.isActive ? () => this.props.sendBid(this.state.validBids.includes("Redouble") ? "Redouble" : "Double") : undefined}>
+                        <div className={`BidField RightField ${(this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble")) && canDouble ? "active" : ""}`} id="bidField"
+                            onClick={(this.state.validBids.includes("Double") || this.state.validBids.includes("Redouble")) && this.state.isActive && canDouble ? () => this.props.sendBid(this.state.validBids.includes("Redouble") ? "Redouble" : "Double") : undefined}>
                             {this.state.validBids.includes("Redouble") ? "Redouble" : "Double"}
                         </div>
                     </div>

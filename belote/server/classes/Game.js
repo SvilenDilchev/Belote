@@ -12,6 +12,7 @@ class Game {
     roundBid = '';
     roundBidder = null;
     roundMultiplier = 1;
+    lastRoundWasValat = false;
 
     hangingPoints = 0;
 

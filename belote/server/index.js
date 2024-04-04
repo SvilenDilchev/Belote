@@ -49,9 +49,9 @@ io.on('connection', (socket) => {
             user.joinRoom(data.roomID);
             room.addPlayer(user);
 
-            socket.emit('set_room', room);
-            socket.to(room.roomID).emit('update_room', room);
-            socket.to(data.roomID).emit('update_players', room.players);
+            io.to(room.roomID).emit('update_room', room);
+            io.to(socket.id).emit('set_room', room);
+            //socket.to(data.roomID).emit('update_players', room.players);
         } else {
             socket.emit('room_full');
         }
@@ -116,10 +116,6 @@ io.on('connection', (socket) => {
         game.roundBidder = stateData.roundBiddingInfo.biddingPlayer;
         game.roundMultiplier = stateData.roundBiddingInfo.multiplier;
 
-        console.log("Game bid: ", game.roundBid);
-        console.log("Game bidder: ", game.roundBidder);
-        console.log("Game multiplier: ", game.roundMultiplier);
-
         startPlayingRound(game, io);
     });
 
@@ -135,12 +131,32 @@ io.on('connection', (socket) => {
         io.to(game.room.roomID).emit('reset_game', game);
     });
 
+    socket.on('end_game', (gameData) => {
+        const game = new Game(gameData.room);
+        game.fullDeck = [];
+        game.team1 = gameData.team1;
+        game.team2 = gameData.team2;
+        game.roundNumber = gameData.roundNumber;
+        game.rotatePlayersAndClearHands();
+
+        io.to(game.room.roomID).emit('display_winner', game);
+    });
+
+    socket.on('end_room', (gameData) => {
+        io.to(gameData.room.roomID).emit('room_ended', gameData.room);
+        socket.leave(gameData.room.roomID);
+        if(activeRooms.has(gameData.room.roomID)){
+            activeRooms.delete(gameData.room.roomID);
+        }
+    });
+    
+
     socket.on('disconnect', () => {
         const room = activeRooms.get(user.roomID);
         if (room) {
             room.removePlayer(user);
-            socket.to(room.roomID).emit('update_room', room);
-            socket.to(room.roomID).emit('update_players', room.players);
+            io.to(room.roomID).emit('update_room', room);
+            //io.to(room.roomID).emit('update_players', room.players);
             if (room.players.length === 0) {
                 activeRooms.delete(user.roomID);
             }

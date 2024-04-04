@@ -326,7 +326,7 @@ const updatePlayableCards = (gameBid, player, requestedSuit, winningCard, curren
                                     card.isPlayable = false;
                                 }
                             })
-                        }else{
+                        } else {
                             player.hand.forEach(card => {
                                 card.isPlayable = true;
                             });
@@ -365,7 +365,6 @@ const startPlayingRound = (game, io) => {
 }
 
 const startTrick = (game, io, trickNumber) => {
-    console.log("startTrick -- ", trickNumber);
     var cardsPlayed = [];
     var winningCard = null;
     var currentTaker = null;
@@ -545,7 +544,6 @@ const startTrick = (game, io, trickNumber) => {
 
     function addPoints() {
         const roundPoints = cardLibrary.countPoins(cardsPlayed);
-        console.log("round points: ", roundPoints);
         if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
             game.team1.roundPoints += roundPoints;
         } else {
@@ -574,35 +572,31 @@ const startTrick = (game, io, trickNumber) => {
         }
         cardsPlayed = [];
 
-        console.log("end of trick");
         if (trickNumber < 8) {
             setTimeout(() => {
                 io.emit('reset_trick', game);
                 startTrick(game, io, trickNumber);
             }, 3000);
         } else {
-            console.log("t1 points: ", game.team1.roundPoints);
-            console.log("t2 points: ", game.team2.roundPoints);
-            console.log("end of round");
-
             if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
                 game.team1.roundPoints += 10;
             } else {
                 game.team2.roundPoints += 10;
             }
-            var gameResult = calculatePoints(game);
+            var roundResult = calculatePoints(game);
 
-            if(gameResult.hangingPoints === 0){
-                gameResult.winners.totalPoints += game.hangingPoints;
+            if (roundResult.hangingPoints === 0) {
+                roundResult.winners.totalPoints += game.hangingPoints;
                 game.hangingPoints = 0;
-            }else{
-                game.hangingPoints += gameResult.hangingPoints;
+            } else {
+                game.hangingPoints += roundResult.hangingPoints;
             }
 
-            console.log("gameResult: ", gameResult);
-            console.log("game.team1.totalPoints: ", game.team1.totalPoints);
-            console.log("game.team2.totalPoints: ", game.team2.totalPoints);
-
+            if(roundResult.isValat){
+                game.lastRoundWasValat = true;
+            }else{
+                game.lastRoundWasValat = false;
+            }
             setTimeout(() => {
                 io.to(game.room.roomID).emit('end_round', game);
             }, 3000);
@@ -614,30 +608,22 @@ const calculatePoints = (game) => {
     var bidTeam = null;
     var otherTeam = null;
     var declarationPoints = 0;
-    var roundResult = null;
+    var roundResult = {
+        winners: null,
+        hangingPoints: 0,
+        isValat: false
+    };
     var hangingPoints = 0;
 
-    console.log("bidder: ", game.roundBidder.socketID);
-    console.log("game.team1.player1: ", game.team1.player1.socketID);
-    console.log("game.team1.player2: ", game.team1.player2.socketID);
-    console.log("game.team2.player1: ", game.team2.player1.socketID);
-    console.log("game.team2.player2: ", game.team2.player2.socketID);
-
     if (game.team1.player1.socketID === game.roundBidder.socketID || game.team1.player2.socketID === game.roundBidder.socketID) {
-        console.log("bidder is in team 1");
         bidTeam = game.team1;
         otherTeam = game.team2;
     } else if (game.team2.player1.socketID === game.roundBidder.socketID || game.team2.player2.socketID === game.roundBidder.socketID) {
-        console.log("bidder is in team 2");
         bidTeam = game.team2;
         otherTeam = game.team1;
     }
 
     var totalRoundScore = bidTeam.roundPoints + otherTeam.roundPoints;
-
-    console.log("bid team: ", bidTeam);
-    console.log("other team: ", otherTeam);
-    console.log("total round points: ", totalRoundScore);
 
     if (game.roundBid === 'No Trumps') {
         bidTeam.roundPoints *= 2;
@@ -646,38 +632,38 @@ const calculatePoints = (game) => {
     }
 
     if (bidTeam.roundPoints > totalRoundScore / 2) {
-        console.log("game taken");
-
         if (bidTeam.roundPoints !== totalRoundScore) {
             if (game.roundMultiplier !== 1) {
-                console.log("Double");
-
                 switch (game.roundBid) {
                     case "No Trumps":
                         bidTeam.totalPoints += 26 * game.roundMultiplier;
                         roundResult = {
                             winners: bidTeam,
-                            hangingPoints: hangingPoints
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
                         return roundResult;
                     case "All Trumps":
                         bidTeam.totalPoints += 26 * game.roundMultiplier + declarationPoints;
                         roundResult = {
-                            winners: winners,
-                            hangingPoints: hangingPoints
+                            winners: bidTeam,
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
                         return roundResult;
                     default:
                         bidTeam.totalPoints += 16 * game.roundMultiplier + declarationPoints;
-                        gameResult = {
+                        roundResult = {
                             winners: bidTeam,
-                            hangingPoints: hangingPoints
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
                         return roundResult;
                 }
             }
         } else {
             bidTeam.roundPoints += 90;
+            roundResult.isValat = true;
         }
 
         bidTeamHardPoints = Math.floor(bidTeam.roundPoints / 10);
@@ -719,44 +705,44 @@ const calculatePoints = (game) => {
         bidTeam.totalPoints += bidTeamHardPoints;
         otherTeam.totalPoints += otherTeamHardPoints;
 
-        gameResult = {
-            winners: bidTeam,
-            hangingPoints: hangingPoints
-        }
-    } else if (bidTeam.roundPoints < totalRoundScore / 2) {
-        console.log("game inside");
+        roundResult.winners = bidTeam;
+        roundResult.hangingPoints = hangingPoints;
 
+    } else if (bidTeam.roundPoints < totalRoundScore / 2) {
         if (bidTeam.roundPoints !== 0) {
             if (game.roundMultiplier !== 1) {
-                console.log("Double")
                 switch (game.roundBid) {
                     case "No Trumps":
                         otherTeam.totalPoints += 26 * game.roundMultiplier;
-                        gameResult = {
+                        roundResult = {
                             winners: otherTeam,
-                            hangingPoints: hangingPoints
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
-                        return gameResult;
+                        return roundResult;
                     case "All Trumps":
                         otherTeam.totalPoints += 26 * game.roundMultiplier + declarationPoints;
-                        gameResult = {
+                        roundResult = {
                             winners: otherTeam,
-                            hangingPoints: hangingPoints
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
-                        return gameResult;
+                        return roundResult;
                     default:
                         otherTeam.totalPoints += 16 * game.roundMultiplier + declarationPoints;
-                        gameResult = {
+                        roundResult = {
                             winners: winners,
-                            hangingPoints: hangingPoints
+                            hangingPoints: hangingPoints,
+                            isValat: false
                         }
-                        return gameResult;
+                        return roundResult;
                 }
             }
-        }else{
+        } else {
             totalRoundScore += 90;
+            roundResult.isValat = true;
         }
-        switch (gameType) {
+        switch (game.roundBid) {
             case "No Trumps":
                 otherTeam.totalPoints += totalRoundScore / 10;
                 break;
@@ -767,40 +753,40 @@ const calculatePoints = (game) => {
                 otherTeam.totalPoints += Math.floor(totalRoundScore / 10);
                 break;
         }
-        gameResult = {
-            winners: otherTeam,
-            hangingPoints: hangingPoints
-        }
-    } else {
-        console.log("game hanging");
 
-        if(game.roundMultiplier !== 1){
-            console.log("Double")
+        roundResult.winners = otherTeam;
+        roundResult.hangingPoints = hangingPoints;
+
+    } else {
+        if (game.roundMultiplier !== 1) {
             switch (game.roundBid) {
                 case "No Trumps":
                     otherTeam.totalPoints += 13 * game.roundMultiplier;
                     hangingPoints += 13 * game.roundMultiplier;
-                    gameResult = {
+                    roundResult = {
                         winners: null,
-                        hangingPoints: hangingPoints
+                        hangingPoints: hangingPoints,
+                        isValat: false
                     }
-                    return gameResult;
+                    return roundResult;
                 case "All Trumps":
                     otherTeam.totalPoints += 13 * game.roundMultiplier + (declarationPoints / 2);
                     hangingPoints += 13 * game.roundMultiplier + (declarationPoints / 2);
-                    gameResult = {
+                    roundResult = {
                         winners: null,
-                        hangingPoints: hangingPoints
+                        hangingPoints: hangingPoints,
+                        isValat: false
                     }
-                    return gameResult;
+                    return roundResult;
                 default:
                     otherTeam.totalPoints += 8 * game.roundMultiplier + (declarationPoints / 2);
                     hangingPoints += 8 * game.roundMultiplier + (declarationPoints / 2);
-                    gameResult = {
+                    roundResult = {
                         winners: null,
-                        hangingPoints: hangingPoints
+                        hangingPoints: hangingPoints,
+                        isValat: false
                     }
-                    return gameResult;
+                    return roundResult;
             }
         }
 
@@ -816,25 +802,22 @@ const calculatePoints = (game) => {
             default:
                 otherTeam.totalPoints += Math.floor(totalRoundScore / 20);
                 hangingPoints += Math.floor(totalRoundScore / 20);
-                if(otherTeam.roundPoints % 10 === 6){
+                if (otherTeam.roundPoints % 10 === 6) {
                     otherTeam.totalPoints++;
                     hangingPoints++;
                 }
                 break;
         }
-        gameResult = {
+        roundResult = {
             winners: null,
-            hangingPoints: hangingPoints
+            hangingPoints: hangingPoints,
+            isValat: false
         }
     }
 
     bidTeam.roundPoints = 0;
     otherTeam.roundPoints = 0;
-
-    console.log("bid team points: ", bidTeam.totalPoints);
-    console.log("other team points: ", otherTeam.totalPoints);
-
-    return gameResult;
+    return roundResult;
 }
 
 const setTrickTurns = (game, currentTaker) => {

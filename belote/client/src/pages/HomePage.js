@@ -5,7 +5,7 @@ import { SocketContext } from '../context/socket';
 import '../App.css';
 import '../css/HomePage.css';
 
-export default function Home({ rooms, setRooms }) {
+export default function Home() {
     const [username, setUsername] = useState('');
     const [room, setRoom] = useState('');
     const [isRoomFull, setIsRoomFull] = useState(false);
@@ -27,10 +27,7 @@ export default function Home({ rooms, setRooms }) {
 
     useEffect(() => {
         const handleSetRoom = (room) => {
-            const newRooms = new Map(rooms);
-            newRooms.set(room.roomID, room);
-            setRooms(newRooms);
-            navigate(`/room/:${room.roomID}`, { state: { roomID: room.roomID, players: room.players } });
+            navigate(`/room/:${room.roomID}`, { state: { room: room, roomID: room.roomID, players: room.players } });
         };
 
         socket.on('set_room', handleSetRoom);
@@ -38,7 +35,7 @@ export default function Home({ rooms, setRooms }) {
         return () => {
             socket.off('set_room', handleSetRoom);
         };
-    }, [rooms, navigate, setRooms, socket]);
+    }, [navigate, socket]);
 
     const handleRoomFull = useCallback(async () => {
         responseRef.current.innerText = 'Room is full, try another one!';

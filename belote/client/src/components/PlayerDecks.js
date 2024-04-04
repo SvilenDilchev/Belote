@@ -53,32 +53,31 @@ class SouthPlayerDeck extends Component {
                         var verticalOffset = Math.abs(index - (totalCards - 1) / 2) * 24;
 
                         switch (this.state.cards.length) {
+                            case 2:
+                                verticalOffset -= [10, 10][index];
+                                break;
+                            case 3:
+                                verticalOffset -= [20, 0, 20][index];
+                                break;
                             case 4:
-                                if (index === 1 || index === 2) {
-                                    verticalOffset -= 6;
-                                }
+                                verticalOffset -= [31, 11, 11, 31][index];
                                 break;
                             case 5:
                                 if (index === 1 || index === 3) {
-                                    verticalOffset -= 11;
+                                    verticalOffset -= 22.5;
+                                }
+                                if(index === 0 || index === 4) {
+                                    verticalOffset -= 42;
                                 }
                                 break;
                             case 6:
-                                if (index === 1 || index === 4) {
-                                    verticalOffset -= 4;
-                                } else if (index === 0 || index === 5) {
-                                    verticalOffset += 8;
-                                }
+                                    verticalOffset -= [53, 33.5, 12, 12, 33.5, 53][index];
                                 break;
                             case 7:
-                                if (index === 1 || index === 2 || index === 4 || index === 5) {
-                                    verticalOffset -= 14;
-                                }
+                                    verticalOffset -= [62, 43, 22.5, 0, 22.5, 43, 62][index];
                                 break;
                             case 8:
-                                if (index >= 1 && index <= 6) {
-                                    verticalOffset -= [14, 16, 7, 7, 16, 14][index - 1];
-                                }
+                                    verticalOffset -= [73, 54, 34, 12, 12, 34, 54, 73][index];
                                 break;
                             default:
                                 break;
@@ -94,7 +93,7 @@ class SouthPlayerDeck extends Component {
                                 style={{
                                     zIndex,
                                     '--rotation': `${rotation}`,
-                                    transform: `rotate(var(--rotation)) translateY(${verticalOffset}px)`,
+                                    transform: `rotate(var(--rotation)) translateY(${verticalOffset}vh)`,
                                     WebkitFilter: `brightness(${card.isPlayable ? 100 : 75}%)`,
                                     filter: `brightness(${card.isPlayable ? 100 : 75}%)`
                                     // Pass rotation as a custom property

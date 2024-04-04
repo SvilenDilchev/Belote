@@ -3,6 +3,7 @@ import Scoreboard from './Scoreboard';
 import { SouthPlayerDeck, OtherPlayerDeck } from './PlayerDecks';
 import { TopNameField, BottomNameField } from './NameFields';
 import BidBox from './BidBox';
+import ResultBox from './ResultBox';
 import '../css/Game.css';
 import { socket } from '../context/socket';
 import PlayArea from './PlayArea';
@@ -52,12 +53,12 @@ class Game extends Component {
             roundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
             tempBid: null,
             tempBidder: null,
-            cardsPlayed: cardsPlayed
+            cardsPlayed: cardsPlayed,
+            gameEnded: false,
         };
     }
 
     componentDidMount() {
-        console.log("Game mounted");
         this.startGame();
         socket.on('deal_first_cards', this.handleDealFirstCards);
         socket.on('request_bid', this.handleRequestBid);
@@ -68,10 +69,10 @@ class Game extends Component {
         socket.on('reset_trick', this.handleResetTrick);
         socket.on('update_temp_bid', this.handleTempBid);
         socket.on('end_round', this.handleEndRound);
+        socket.on('display_winner', this.handleEndGame);
     }
 
     componentWillUnmount() {
-        console.log("Game unmounted");
         socket.off('deal_first_cards');
         socket.off('request_bid');
         socket.off('bidding_result');
@@ -140,11 +141,13 @@ class Game extends Component {
 
     requestBids() {
         if (this.state.me.turn === 0) {
-            socket.emit('request_bids', this.state.game);
+            setTimeout(() => {
+                socket.emit('request_bids', this.state.game);
+            }, 2000);
         }
     }
 
-    requestBid(player) {
+    requestBid() {
         this.setState({ bidBoxActive: true });
     }
 
@@ -172,6 +175,7 @@ class Game extends Component {
             if (info.bid === "Double") {
                 const newTempBid = this.state.tempBid + " x2";
                 this.setState(prevState => ({
+                    ...prevState,
                     tempBid: newTempBid,
                     tempBidder: info.player,
                 }));
@@ -179,6 +183,7 @@ class Game extends Component {
             else if (info.bid === "Redouble") {
                 const newTempBid = this.state.tempBid.slice(0, -3) + " x4";
                 this.setState(prevState => ({
+                    ...prevState,
                     tempBid: newTempBid,
                     tempBidder: info.player,
                 }));
@@ -224,14 +229,12 @@ class Game extends Component {
         this.handleNewState(game);
         setTimeout(() => {
             if (this.state.me.turn === 3) {
-                console.log('emiting play round');
                 socket.emit('play_round', this.state);
             }
         }, 3000);
     }
 
     handleCardPlayed = (data) => {
-        console.log("card was played -- ", data)
         const playerKey = data.player.turn;
         const updatedPlayerState = {
             player: data.player,
@@ -305,11 +308,11 @@ class Game extends Component {
             me,
             partner,
             opponentR,
-            opponentL            
+            opponentL
         });
     }
 
-    handleResetTrick = (game) => {
+    handleResetTrick = () => {
         this.setState({
             ...this.state,
             cardsPlayed: {
@@ -372,14 +375,61 @@ class Game extends Component {
                     cardPlayed: false,
                     card: null,
                 }
-            }
+            },
         }, () => {
             console.log("End of round");
-            console.log("state -- ", this.state);
+            if ((this.state.us.totalPoints >= 151 || this.state.them.totalPoints >= 151) && !this.state.game.lastRoundWasValat && this.state.us.totalPoints !== this.state.them.totalPoints) {
+                if (this.state.me.turn === 3) {
+                    socket.emit('end_game', this.state.game);
+                }
+            } else {
+                this.endRound();
+            }
+        });
+    }
 
-            
-
-            this.endRound();
+    handleEndGame = (game) => {
+        const { socket } = this.props;
+        const { team1, team2 } = game;
+        const { us, them } = this.getTeams(socket, team1, team2);
+        const { me, partner, opponentR, opponentL } = this.getPlayers(socket, team1, team2);
+        this.setState({
+            ...this.state,
+            game: game,
+            us,
+            them,
+            me,
+            partner,
+            opponentR,
+            opponentL,
+            cardsPlayed: {
+                me: {
+                    player: this.state.me,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentR: {
+                    player: this.state.opponentR,
+                    cardPlayed: false,
+                    card: null,
+                },
+                opponentL: {
+                    player: this.state.opponentL,
+                    cardPlayed: false,
+                    card: null,
+                },
+                partner: {
+                    player: this.state.partner,
+                    cardPlayed: false,
+                    card: null,
+                }
+            },
+            gameEnded: true,
+        }, () => {
+            console.log("End of game");
+            setTimeout(() => {
+                socket.emit('end_room', this.state.game);
+            }, 10000);
         });
     }
 
@@ -409,7 +459,9 @@ class Game extends Component {
         };
 
         this.setState(newState, () => {
-            this.playRound();
+            setTimeout(() => {
+                this.playRound();
+            }, 2000);
         });
     }
 
@@ -455,7 +507,10 @@ class Game extends Component {
                             isActive={this.state.bidBoxActive}
                             validBids={this.state.validBids}
                             sendBid={(bid) => this.sendBid(bid)}
+                            tempBidder={this.state.tempBidder}
+                            partner={this.state.partner}
                         />
+                        <ResultBox gameEnded={this.state.gameEnded} winner1={(this.state.us.totalPoints > this.state.them.totalPoints) ? me.name : opponentR.name} winner2={(this.state.us.totalPoints > this.state.them.totalPoints) ? partner.name : opponentL.name} />
                     </div>
                 </div>
             </div>
