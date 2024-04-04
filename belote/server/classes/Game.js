@@ -1,6 +1,5 @@
 const Team = require('./Team');
 const { cardLibrary } = require('../logic.js');
-const { reset } = require('nodemon');
 
 class Game {
 
@@ -116,6 +115,21 @@ class Game {
             this.room.players[i].hand = cardLibrary.sortDeckByPokerOrder(this.room.players[i].hand);
         }
 
+        this.resetTeamsAfterDealing();
+    }
+
+    sortHands(gameBid){
+        for (let i = 0; i < this.room.players.length; i++) {
+            switch(gameBid){
+                case "No Trumps":
+                    this.room.players[i].hand = cardLibrary.sortDeckByNoTrumpRanks(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
+                    break;
+                case "All Trumps":
+                    this.room.players[i].hand = cardLibrary.sortDeckByAllTrumpRanks(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
+                default:
+                    this.room.players[i].hand = cardLibrary.sortDeckByTrumpSuit(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
+            }
+        }
         this.resetTeamsAfterDealing();
     }
 

@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const Player = require('./classes/Player');
 const Room = require('./classes/Room');
 const Game = require('./classes/Game');
-const { getBiddingResult, startPlayingRound } = require('./logic');
+const { getBiddingResult, startPlayingRound, cardLibrary } = require('./logic');
 
 const PORT = 3001;
 const CLIENT_ORIGIN = 'http://localhost:3000';
@@ -77,13 +77,15 @@ io.on('connection', (socket) => {
         io.to(game.room.roomID).emit('deal_first_cards', game);
     });
 
-    socket.on('deal_3_cards', (gameData) => {
+    socket.on('deal_3_cards', (stateData) => {
+        const gameData = stateData.game;
         const game = new Game(gameData.room);
         game.fullDeck = gameData.fullDeck;
         game.team1 = gameData.team1;
         game.team2 = gameData.team2;
         game.roundNumber = gameData.roundNumber;
         game.deal3Cards();
+        game.sortHands(stateData.roundBiddingInfo.gameBid);
         io.to(game.room.roomID).emit('deal_second_cards', game);
     });
 

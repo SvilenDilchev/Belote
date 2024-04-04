@@ -136,7 +136,7 @@ class Game extends Component {
     }
 
     deal3Cards() {
-        socket.emit('deal_3_cards', this.state.game);
+        socket.emit('deal_3_cards', this.state);
     }
 
     requestBids() {
@@ -377,7 +377,6 @@ class Game extends Component {
                 }
             },
         }, () => {
-            console.log("End of round");
             if ((this.state.us.totalPoints >= 151 || this.state.them.totalPoints >= 151) && !this.state.game.lastRoundWasValat && this.state.us.totalPoints !== this.state.them.totalPoints) {
                 if (this.state.me.turn === 3) {
                     socket.emit('end_game', this.state.game);
@@ -426,7 +425,6 @@ class Game extends Component {
             },
             gameEnded: true,
         }, () => {
-            console.log("End of game");
             setTimeout(() => {
                 socket.emit('end_room', this.state.game);
             }, 10000);

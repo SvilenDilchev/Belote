@@ -1,5 +1,3 @@
-const e = require("express");
-
 const cardLibrary = {
 
     keyCounter: 0, // Initialize a key counter
@@ -27,6 +25,14 @@ const cardLibrary = {
 
     sortDeckBySuits(deck) {
         return deck.sort((card1, card2) => {
+            const suitIndex1 = this.suits.indexOf(card1.suit);
+            const suitIndex2 = this.suits.indexOf(card2.suit);
+            return suitIndex1 - suitIndex2;
+        });
+    },
+
+    sortDeckByBRSuits(deck){
+        return deck.sort((card1, card2) => {
             const suitIndex1 = this.brSuits.indexOf(card1.suit);
             const suitIndex2 = this.brSuits.indexOf(card2.suit);
             return suitIndex1 - suitIndex2;
@@ -49,7 +55,7 @@ const cardLibrary = {
 
     sortDeckByNoTrumpRanks(deck) {
         const sortedDeck = [];
-        for (const suit of this.suits) {
+        for (const suit of this.brSuits) {
             const suitCards = deck.filter(card => card.suit === suit);
             const sortedSuitCards = suitCards.sort((card1, card2) => {
                 const rankIndex1 = this.noTrumpRanks.indexOf(card1.rank);
@@ -63,7 +69,7 @@ const cardLibrary = {
 
     sortDeckByAllTrumpRanks(deck) {
         const sortedDeck = [];
-        for (const suit of this.suits) {
+        for (const suit of this.brSuits) {
             const suitCards = deck.filter(card => card.suit === suit);
             const sortedSuitCards = suitCards.sort((card1, card2) => {
                 const rankIndex1 = this.allTrumpRanks.indexOf(card1.rank);
@@ -74,6 +80,29 @@ const cardLibrary = {
         }
         return sortedDeck;
     },
+
+    sortDeckByTrumpSuit(deck, gameBid) {
+        const sortedDeck = [];
+        for (const suit of this.brSuits) {
+            const suitCards = deck.filter(card => card.suit === suit);
+            let sortedSuitCards;
+            if (suit === gameBid) {
+                sortedSuitCards = suitCards.sort((card1, card2) => {
+                    const rankIndex1 = this.allTrumpRanks.indexOf(card1.rank);
+                    const rankIndex2 = this.allTrumpRanks.indexOf(card2.rank);
+                    return rankIndex2 - rankIndex1; // Sort in reverse order
+                });
+            } else {
+                sortedSuitCards = suitCards.sort((card1, card2) => {
+                    const rankIndex1 = this.noTrumpRanks.indexOf(card1.rank);
+                    const rankIndex2 = this.noTrumpRanks.indexOf(card2.rank);
+                    return rankIndex2 - rankIndex1; // Sort in reverse order
+                });
+            }
+            sortedDeck.push(...sortedSuitCards);
+        }
+        return sortedDeck;
+    },    
 
     resetCardsToPlayable(deck) {
         return deck.map(card => {
@@ -86,8 +115,7 @@ const cardLibrary = {
         return deck.map(card => {
             card.isPlayable = false;
             return card;
-        }
-        );
+        });
     },
 
 
