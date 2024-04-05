@@ -866,7 +866,7 @@ const startTrick = (game, io, trickNumber) => {
 const calculatePoints = (game) => {
     var bidTeam = null;
     var otherTeam = null;
-    var declarationPoints = calculateDeclarationPoints(game);
+    var declarationPoints = (calculateDeclarationPoints(game) / 10);
     var roundResult = {
         winners: null,
         hangingPoints: 0,
