@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Scoreboard from './Scoreboard';
 import { SouthPlayerDeck, OtherPlayerDeck } from './PlayerDecks';
-import { TopNameField, BottomNameField } from './NameFields';
+import { TopNameField, BottomNameField, SingleNameField } from './NameFields';
 import BidBox from './BidBox';
 import ResultBox from './ResultBox';
 import '../css/Game.css';
@@ -590,16 +590,18 @@ class Game extends Component {
                     </div>
                     <div className='Col MidCol' id='tmCell'>
                         <OtherPlayerDeck position={"North"} deck={partner.hand} />
+                        <SingleNameField name={partner.name} position={"north"}/>
                         <MessageBubble message={this.state.messageInfo.partnerMessage}/>
                     </div>
                     <div className='Col RightCol' id='trCell'>
-                        <TopNameField leftName={partner.name} rightName={opponentR.name} />
+                        {/* <TopNameField leftName={partner.name} rightName={opponentR.name} /> */}
                     </div>
                 </div>
                 <div className='Row' id='MidRow'>
                     <div className='Col LeftCol' id='mlCell'>
                         <OtherPlayerDeck position={"West"} deck={opponentL.hand} />
                         <MessageBubble message={this.state.messageInfo.opponentLMessage}/>
+                        <SingleNameField name={opponentL.name} position={"west"}/>
                     </div>
                     <div className='Col MidCol' id='mmCell'>
                         <PlayArea cardsPlayed={this.state.cardsPlayed} />
@@ -607,14 +609,16 @@ class Game extends Component {
                     <div className='Col RightCol' id='mrCell'>
                         <MessageBubble message={this.state.messageInfo.opponentRMessage}/>
                         <OtherPlayerDeck position={"East"} deck={opponentR.hand} />
+                        <SingleNameField name={opponentR.name} position={"east"}/>
                     </div>
                 </div>
                 <div className='Row' id='BotRow'>
                     <div className='Col LeftCol' id='blCell'>
-                        <BottomNameField leftName={opponentL.name} rightName={me.name} />
+                        {/* <BottomNameField leftName={opponentL.name} rightName={me.name} /> */}
                     </div>
                     <div className='Col MidCol' id='bmCell'>
                         <SouthPlayerDeck deck={me.hand} playCard={(card, index) => this.playCard(card, index)} />
+                        <SingleNameField name={me.name} position={"south"}/>
                     </div>
                     <div className='Col RightCol' id='brCell'>
                         <BidBox

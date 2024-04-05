@@ -59,5 +59,33 @@ class BottomNameField extends Component {
     }
 }
 
+class SingleNameField extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: props.name,
+            position: props.position
+        };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.name !== this.props.name) {
+            this.setState({
+                name: this.props.name,
+                position: this.props.position
+            });
+        }
+    }
+
+    render() {
+        return (
+            <div className="SingleNameBox" id={this.props.position}>
+                <div className="SingleNameField"> {this.state.name} </div>
+            </div>
+        );
+    }
+}
+
 export default TopNameField;
-export { TopNameField, BottomNameField };
+export { TopNameField, BottomNameField, SingleNameField };

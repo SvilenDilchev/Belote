@@ -119,12 +119,17 @@ class Game {
     }
 
     sortHands(gameBid){
+        console.log("Sorting hands by game bid: " + gameBid);
         for (let i = 0; i < this.room.players.length; i++) {
             switch(gameBid){
                 case "No Trumps":
+                case "No Trumps x2":
+                case "No Trumps x4":
                     this.room.players[i].hand = cardLibrary.sortDeckByNoTrumpRanks(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
                     break;
                 case "All Trumps":
+                case "All Trumps x2":
+                case "All Trumps x4":
                     this.room.players[i].hand = cardLibrary.sortDeckByAllTrumpRanks(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
                     break;
                 default:
