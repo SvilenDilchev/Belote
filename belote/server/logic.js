@@ -788,11 +788,9 @@ const startTrick = (game, io, trickNumber) => {
         if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
             game.team1.roundPoints += roundPoints;
             game.team1.hasTakenHand = true;
-            console.log("t1 gets points: ", roundPoints)
         } else {
             game.team2.roundPoints += roundPoints;
             game.team2.hasTakenHand = true;
-            console.log("t2 gets points: ", roundPoints)
         }
         endTrick();
     }
@@ -825,13 +823,10 @@ const startTrick = (game, io, trickNumber) => {
         } else {
             if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
                 game.team1.roundPoints += 10;
-                console.log("t1 last 10")
             } else {
                 game.team2.roundPoints += 10;
-                console.log("t2 last 10")
             }
             var roundResult = calculatePoints(game);
-            console.log("roundResult: ", roundResult);
 
             if (roundResult.hangingPoints === 0) {
                 roundResult.winners.totalPoints += game.hangingPoints;
@@ -855,7 +850,6 @@ const startTrick = (game, io, trickNumber) => {
                 player.declarations = [];
             }
 
-            console.log("ending game: ", game);
             setTimeout(() => {
                 io.to(game.room.roomID).emit('end_round', game);
             }, 3000);
@@ -891,7 +885,6 @@ const calculatePoints = (game) => {
     }
 
     if (bidTeam.roundPoints > totalRoundScore / 2) {
-        console.log("izkarana igra")
         if (otherTeam.hasTakenHand) {
             if (game.roundMultiplier !== 1) {
                 switch (game.roundBid) {
@@ -922,7 +915,6 @@ const calculatePoints = (game) => {
                 }
             }
         } else {
-            console.log("valat")
             bidTeam.roundPoints += 90;
             roundResult.isValat = true;
         }
@@ -970,7 +962,6 @@ const calculatePoints = (game) => {
         roundResult.hangingPoints = hangingPoints;
 
     } else if (bidTeam.roundPoints < totalRoundScore / 2) {
-        console.log("vutre igra")
         if (bidTeam.hasTakenHand) {
             if (game.roundMultiplier !== 1) {
                 switch (game.roundBid) {
@@ -1001,7 +992,6 @@ const calculatePoints = (game) => {
                 }
             }
         } else {
-            console.log("valat")
             totalRoundScore += 90;
             roundResult.isValat = true;
         }
@@ -1283,36 +1273,28 @@ const calculateDeclarationPoints = (game) => {
     // Compare the larger Kares from both teams and update teamWithLargestKare accordingly
     if (team1LargerKare && !team2LargerKare) {
         teamWithLargestKare = game.team1;
-        console.log("t1 s kare");
     } else if (team2LargerKare && !team1LargerKare) {
         teamWithLargestKare = game.team2;
-        console.log("t2 s kare");
     } else if (team1LargerKare && team2LargerKare) {
         const comparisonResult = compareCards(team1LargerKare.substr(4), team2LargerKare.substr(4));
         if (comparisonResult > 0) {
             teamWithLargestKare = game.team1;
-            console.log("t1 s kare");
         } else if (comparisonResult < 0) {
             teamWithLargestKare = game.team2;
-            console.log("t2 s kare");
         }
     }
 
     // Compare the larger SF declarations from both teams and update teamWithLargestSF accordingly
     if (team1LargerSF && !team2LargerSF) {
         teamWithLargestSF = game.team1;
-        console.log("t1 s sf")
     } else if (team2LargerSF && !team1LargerSF) {
         teamWithLargestSF = game.team2;
-        console.log("t2 s sf")
     } else if (team1LargerSF && team2LargerSF) {
         const lengthComparison = parseInt(team1LargerSF[2]) - parseInt(team2LargerSF[2]);
         if (lengthComparison > 0 || (lengthComparison === 0 && compareCards(team1LargerSF.substr(3), team2LargerSF.substr(3)) > 0)) {
             teamWithLargestSF = game.team1;
-            console.log("t1 s sf")
         } else if (lengthComparison < 0 || (lengthComparison === 0 && compareCards(team1LargerSF.substr(3), team2LargerSF.substr(3)) < 0)) {
             teamWithLargestSF = game.team2;
-            console.log("t2 s sf")
         }
     }
 
@@ -1329,7 +1311,6 @@ const calculateDeclarationPoints = (game) => {
                 }
                 teamWithLargestKare.roundPoints += declarationValue;
                 totalPoints += declarationValue;
-                console.log("dobavqne na kare tochki:", declarationValue);
             }
         }
     }
@@ -1342,13 +1323,10 @@ const calculateDeclarationPoints = (game) => {
                 let declarationValue = 0;
                 if (sfLength === 3) {
                     declarationValue = 20;
-                    console.log("terca")
                 } else if (sfLength === 4) {
                     declarationValue = 50;
-                    console.log("50")
                 } else if (sfLength === 5) {
                     declarationValue = 100;
-                    console.log("100")
                 }
                 teamWithLargestSF.roundPoints += declarationValue;
                 totalPoints += declarationValue;
@@ -1362,7 +1340,6 @@ const calculateDeclarationPoints = (game) => {
             if (declaration === 'Belote') {
                 team.roundPoints += 20;
                 totalPoints += 20;
-                console.log("belote");
             }
         }
     }

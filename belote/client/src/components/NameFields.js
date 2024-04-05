@@ -87,5 +87,5 @@ class SingleNameField extends Component {
     }
 }
 
-export default TopNameField;
+export default SingleNameField;
 export { TopNameField, BottomNameField, SingleNameField };

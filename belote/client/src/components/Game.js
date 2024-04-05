@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Scoreboard from './Scoreboard';
 import { SouthPlayerDeck, OtherPlayerDeck } from './PlayerDecks';
-import { TopNameField, BottomNameField, SingleNameField } from './NameFields';
+import { SingleNameField } from './NameFields';
 import BidBox from './BidBox';
 import ResultBox from './ResultBox';
 import '../css/Game.css';
@@ -594,7 +594,6 @@ class Game extends Component {
                         <MessageBubble message={this.state.messageInfo.partnerMessage}/>
                     </div>
                     <div className='Col RightCol' id='trCell'>
-                        {/* <TopNameField leftName={partner.name} rightName={opponentR.name} /> */}
                     </div>
                 </div>
                 <div className='Row' id='MidRow'>
@@ -614,7 +613,6 @@ class Game extends Component {
                 </div>
                 <div className='Row' id='BotRow'>
                     <div className='Col LeftCol' id='blCell'>
-                        {/* <BottomNameField leftName={opponentL.name} rightName={me.name} /> */}
                     </div>
                     <div className='Col MidCol' id='bmCell'>
                         <SouthPlayerDeck deck={me.hand} playCard={(card, index) => this.playCard(card, index)} />

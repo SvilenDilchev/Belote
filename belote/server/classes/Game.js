@@ -119,7 +119,6 @@ class Game {
     }
 
     sortHands(gameBid){
-        console.log("Sorting hands by game bid: " + gameBid);
         for (let i = 0; i < this.room.players.length; i++) {
             switch(gameBid){
                 case "No Trumps":
