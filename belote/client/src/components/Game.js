@@ -7,6 +7,8 @@ import ResultBox from './ResultBox';
 import '../css/Game.css';
 import { socket } from '../context/socket';
 import PlayArea from './PlayArea';
+import DeclareBox from './DeclareBox';
+import MessageBubble from './MessageBubble';
 
 class Game extends Component {
     constructor(props) {
@@ -53,8 +55,15 @@ class Game extends Component {
             roundBiddingInfo: { biddingPlayer: null, gameBid: "Pass", multiplier: 1 },
             tempBid: null,
             tempBidder: null,
+            declareBoxActive: false,
             cardsPlayed: cardsPlayed,
             gameEnded: false,
+            messageInfo:{
+                meMessage: null,
+                partnerMessage: null,
+                opponentRMessage: null,
+                opponentLMessage: null,
+            }
         };
     }
 
@@ -70,6 +79,8 @@ class Game extends Component {
         socket.on('update_temp_bid', this.handleTempBid);
         socket.on('end_round', this.handleEndRound);
         socket.on('display_winner', this.handleEndGame);
+        socket.on('ask_for_declarations', this.handleAskForDeclarations);
+        socket.on('display_message', this.handleDisplayMessage);
     }
 
     componentWillUnmount() {
@@ -81,6 +92,10 @@ class Game extends Component {
         socket.off('ask_for_card');
         socket.off('reset_trick');
         socket.off('update_temp_bid');
+        socket.off('end_round');
+        socket.off('display_winner');
+        socket.off('ask_for_declarations');
+        socket.off('display_message');
     }
 
     componentDidUpdate(prevProps) {
@@ -290,6 +305,104 @@ class Game extends Component {
         }
     }
 
+    handleAskForDeclarations = (player) => {
+        if (this.state.me.socketID === player.socketID) {
+            this.setState({
+                ...this.state,
+                me: player,
+                declareBoxActive: true,
+            });
+        }
+    }
+
+    sendDeclarations = () => {
+        const selectedDeclarations = document.querySelectorAll('.DeclareBoxRow.selected');
+        const declarations = [];
+        selectedDeclarations.forEach((declaration) => {
+            const declarationData = declaration.getAttribute('data-declaration');
+            declarations.push(declarationData);
+        });
+
+        socket.emit('send_declarations', declarations);
+        
+        this.setState({
+            ...this.state,
+            declareBoxActive: false,
+        });
+    }
+
+    handleDisplayMessage = (messageInfo) => {
+        if(messageInfo.player.socketID === this.state.me.socketID){
+            this.setState({
+                ...this.state,
+                messageInfo: {
+                    ...this.state.messageInfo,
+                    meMessage: messageInfo.message
+                }
+            }, () => {
+                setTimeout(() => {
+                    this.setState({
+                        ...this.state,
+                        messageInfo: {
+                            meMessage: null,
+                        }
+                    });
+                }, 3000);
+            });
+        }else if(messageInfo.player.socketID === this.state.partner.socketID){
+            this.setState({
+                ...this.state,
+                messageInfo: {
+                    ...this.state.messageInfo,
+                    partnerMessage: messageInfo.message
+                }
+            }, () => {
+                setTimeout(() => {
+                    this.setState({
+                        ...this.state,
+                        messageInfo: {
+                            partnerMessage: null,
+                        }
+                    });
+                }, 3000);
+            });
+        }else if(messageInfo.player.socketID === this.state.opponentR.socketID){
+            this.setState({
+                ...this.state,
+                messageInfo: {
+                    ...this.state.messageInfo,
+                    opponentRMessage: messageInfo.message
+                }
+            }, () => {
+                setTimeout(() => {
+                    this.setState({
+                        ...this.state,
+                        messageInfo: {
+                            opponentRMessage: null,
+                        }
+                    });
+                }, 3000);
+            });
+        }else if(messageInfo.player.socketID === this.state.opponentL.socketID){
+            this.setState({
+                ...this.state,
+                messageInfo: {
+                    ...this.state.messageInfo,
+                    opponentLMessage: messageInfo.message
+                }
+            }, () => {
+                setTimeout(() => {
+                    this.setState({
+                        ...this.state,
+                        messageInfo: {
+                            opponentLMessage: null,
+                        }
+                    });
+                }, 3000);
+            });
+        }
+    }
+
     playCard(card) {
         socket.emit(`t${this.state.me.trickTurn}_play_card`, card, this.state.me);
     }
@@ -477,6 +590,7 @@ class Game extends Component {
                     </div>
                     <div className='Col MidCol' id='tmCell'>
                         <OtherPlayerDeck position={"North"} deck={partner.hand} />
+                        <MessageBubble message={this.state.messageInfo.partnerMessage}/>
                     </div>
                     <div className='Col RightCol' id='trCell'>
                         <TopNameField leftName={partner.name} rightName={opponentR.name} />
@@ -485,11 +599,13 @@ class Game extends Component {
                 <div className='Row' id='MidRow'>
                     <div className='Col LeftCol' id='mlCell'>
                         <OtherPlayerDeck position={"West"} deck={opponentL.hand} />
+                        <MessageBubble message={this.state.messageInfo.opponentLMessage}/>
                     </div>
                     <div className='Col MidCol' id='mmCell'>
                         <PlayArea cardsPlayed={this.state.cardsPlayed} />
                     </div>
                     <div className='Col RightCol' id='mrCell'>
+                        <MessageBubble message={this.state.messageInfo.opponentRMessage}/>
                         <OtherPlayerDeck position={"East"} deck={opponentR.hand} />
                     </div>
                 </div>
@@ -509,6 +625,8 @@ class Game extends Component {
                             partner={this.state.partner}
                         />
                         <ResultBox gameEnded={this.state.gameEnded} winner1={(this.state.us.totalPoints > this.state.them.totalPoints) ? me.name : opponentR.name} winner2={(this.state.us.totalPoints > this.state.them.totalPoints) ? partner.name : opponentL.name} />
+                        <DeclareBox sendDeclarations={this.sendDeclarations} isActive={this.state.declareBoxActive} declarations={this.state.me.declarations}></DeclareBox>
+                        <div className={`Overlay ${this.state.bidBoxActive || this.state.gameEnded || this.state.declareBoxActive ? "active" : ""}`} id="overlay"></div>
                     </div>
                 </div>
             </div>

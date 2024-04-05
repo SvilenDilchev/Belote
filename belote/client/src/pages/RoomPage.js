@@ -30,7 +30,6 @@ export default function RoomPage() {
     };
   
     const handleUpdateRoom = (newRoom) => {
-      console.log("newRoom: ", newRoom)
       setRoom(newRoom);
       setPlayers(newRoom.players);
       setCanStartGame(

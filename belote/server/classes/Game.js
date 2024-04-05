@@ -126,8 +126,10 @@ class Game {
                     break;
                 case "All Trumps":
                     this.room.players[i].hand = cardLibrary.sortDeckByAllTrumpRanks(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
+                    break;
                 default:
                     this.room.players[i].hand = cardLibrary.sortDeckByTrumpSuit(cardLibrary.sortDeckByBRSuits(this.room.players[i].hand));
+                    break;
             }
         }
         this.resetTeamsAfterDealing();

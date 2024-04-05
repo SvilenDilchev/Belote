@@ -42,7 +42,6 @@ class ResultBox extends Component {
                         </div>
                     </div>
                 </div>
-                <div className={`Overlay ${this.state.gameEnded ? "active" : ""}`} id="overlay2"></div>
             </div>
         );
     }

@@ -6,6 +6,9 @@ class Team{
     player1 = null; 
     player2 = null;
 
+    roundDeclarations = [];
+    hasTakenHand = false;
+
     totalPoints = 0;
     roundPoints = 0;
     

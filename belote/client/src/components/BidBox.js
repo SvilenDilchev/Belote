@@ -64,7 +64,6 @@ class BidBox extends Component {
                         </div>
                     </div>
                 </div>
-                <div className={`Overlay ${this.state.isActive ? "active" : ""}`} id="overlay"></div>
             </div>
         );
     }

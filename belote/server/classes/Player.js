@@ -9,6 +9,8 @@ class Player{
     turn = 0;
     trickTurn = 0;
 
+    declarations = [];
+
     constructor(socketID){
         this.socketID = socketID;
     }

@@ -31,7 +31,7 @@ const cardLibrary = {
         });
     },
 
-    sortDeckByBRSuits(deck){
+    sortDeckByBRSuits(deck) {
         return deck.sort((card1, card2) => {
             const suitIndex1 = this.brSuits.indexOf(card1.suit);
             const suitIndex2 = this.brSuits.indexOf(card2.suit);
@@ -102,7 +102,7 @@ const cardLibrary = {
             sortedDeck.push(...sortedSuitCards);
         }
         return sortedDeck;
-    },    
+    },
 
     resetCardsToPlayable(deck) {
         return deck.map(card => {
@@ -192,7 +192,12 @@ const getBiddingResult = (gameData, io, passCount = 0, bidCount = 0, currentPlay
                 player: player,
                 bid: bid
             }
+            const messageInfo = {
+                player: player,
+                message: bid
+            }
             io.to(gameData.room.roomID).emit('update_temp_bid', (tempBidInfo));
+            io.to(gameData.room.roomID).emit('display_message', (messageInfo));
             doubleBreak: if (bid === 'Pass') {
                 passCount++;
             } else {
@@ -385,6 +390,9 @@ const startPlayingRound = (game, io) => {
     for (const player of game.room.players) {
         cardLibrary.setCardValues(player.hand);
     }
+    for (const player of game.room.players) {
+        detectDeclarations(player, game.roundBid);
+    }
 
     const first = game.room.players.find(player => player.turn === 0);
     setTrickTurns(game, first);
@@ -416,10 +424,62 @@ const startTrick = (game, io, trickNumber) => {
         currentTaker = player;
         requestedSuit = data.card.suit;
         selectedCardIndex = card;
-        player.hand.splice(card, 1);
-        cardLibrary.resetCardsToUnplayable(player.hand);
-        io.to(player.roomID).emit('display_card', (data));
-        askP1(io, game, requestedSuit, winningCard);
+
+        if (trickNumber === 0 && player.declarations.length > 0) {
+            var messageData = {
+                message: "",
+                player: player
+            };
+            if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                    game.team1.roundDeclarations.push("Belote");
+                } else {
+                    game.team2.roundDeclarations.push("Belote");
+                }
+                messageData.message += "Belote ";
+            }
+
+            // TODO: Check for declarations
+            io.to(player.socketID).emit('ask_for_declarations', player);
+
+            socket.once('send_declarations', (declarations) => {
+                if (declarations.length !== 0) {
+                    if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                        game.team1.roundDeclarations.push(...declarations[0].split(' '));
+                    } else {
+                        game.team2.roundDeclarations.push(...declarations[0].split(' '));
+                    }
+                    for (const word of declarations[0].split(' ')) {
+                        messageData.message += word + ' ';
+                    }
+                }
+
+                player.hand.splice(card, 1);
+                cardLibrary.resetCardsToUnplayable(player.hand);
+                io.to(player.roomID).emit('display_message', (messageData));
+                io.to(player.roomID).emit('display_card', (data));
+                askP1(io, game, requestedSuit, winningCard);
+            });
+        } else {
+            if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                var messageData = {
+                    message: "Belote",
+                    player: player
+                };
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                        game.team1.roundDeclarations.push("Belote");
+                    } else {
+                        game.team2.roundDeclarations.push("Belote");
+                    }
+                }
+                io.to(player.roomID).emit('display_message', (messageData));
+            }
+            player.hand.splice(card, 1);
+            cardLibrary.resetCardsToUnplayable(player.hand);
+            io.to(player.roomID).emit('display_card', (data));
+            askP1(io, game, requestedSuit, winningCard);
+        }
     });
 
     function askP1(io, game, requestedSuit, winningCard) {
@@ -466,8 +526,59 @@ const startTrick = (game, io, trickNumber) => {
                 }
             }
             cardLibrary.resetCardsToUnplayable(player.hand);
-            io.to(player.roomID).emit('display_card', (data));
-            askP2(io, game, requestedSuit, winningCard);
+
+            //NEW
+            if (trickNumber === 0 && player.declarations.length > 0) {
+                var messageData = {
+                    message: "",
+                    player: player
+                };
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                        game.team1.roundDeclarations.push("Belote");
+                    } else {
+                        game.team2.roundDeclarations.push("Belote");
+                    }
+                    messageData.message += "Belote ";
+                }
+
+                // TODO: Check for declarations
+                io.to(player.socketID).emit('ask_for_declarations', player);
+
+                socket.once('send_declarations', (declarations) => {
+                    if (declarations.length !== 0) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push(...declarations[0].split(' '));
+                        } else {
+                            game.team2.roundDeclarations.push(...declarations[0].split(' '));
+                        }
+                        for (const word of declarations[0].split(' ')) {
+                            messageData.message += word + ' ';
+                        }
+                    }
+
+                    io.to(player.roomID).emit('display_message', (messageData));
+                    io.to(player.roomID).emit('display_card', (data));
+                    askP2(io, game, requestedSuit, winningCard);
+                });
+            } else {
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    var messageData = {
+                        message: "Belote",
+                        player: player
+                    };
+                    if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push("Belote");
+                        } else {
+                            game.team2.roundDeclarations.push("Belote");
+                        }
+                    }
+                    io.to(player.roomID).emit('display_message', (messageData));
+                }
+                io.to(player.roomID).emit('display_card', (data));
+                askP2(io, game, requestedSuit, winningCard);
+            }
         });
     }
 
@@ -516,8 +627,58 @@ const startTrick = (game, io, trickNumber) => {
             }
 
             cardLibrary.resetCardsToUnplayable(player.hand);
-            io.to(player.roomID).emit('display_card', (data));
-            askP3(io, game, requestedSuit, winningCard);
+
+            if (trickNumber === 0 && player.declarations.length > 0) {
+                var messageData = {
+                    message: "",
+                    player: player
+                };
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                        game.team1.roundDeclarations.push("Belote");
+                    } else {
+                        game.team2.roundDeclarations.push("Belote");
+                    }
+                    messageData.message += "Belote ";
+                }
+
+                // TODO: Check for declarations
+                io.to(player.socketID).emit('ask_for_declarations', player);
+
+                socket.once('send_declarations', (declarations) => {
+                    if (declarations.length !== 0) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push(...declarations[0].split(' '));
+                        } else {
+                            game.team2.roundDeclarations.push(...declarations[0].split(' '));
+                        }
+                        for (const word of declarations[0].split(' ')) {
+                            messageData.message += word + ' ';
+                        }
+                    }
+
+                    io.to(player.roomID).emit('display_message', (messageData));
+                    io.to(player.roomID).emit('display_card', (data));
+                    askP3(io, game, requestedSuit, winningCard);
+                });
+            } else {
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    var messageData = {
+                        message: "Belote",
+                        player: player
+                    };
+                    if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push("Belote");
+                        } else {
+                            game.team2.roundDeclarations.push("Belote");
+                        }
+                    }
+                    io.to(player.roomID).emit('display_message', (messageData));
+                }
+                io.to(player.roomID).emit('display_card', (data));
+                askP3(io, game, requestedSuit, winningCard);
+            }
         });
     }
 
@@ -565,8 +726,60 @@ const startTrick = (game, io, trickNumber) => {
                 }
             }
             cardLibrary.resetCardsToUnplayable(player.hand);
-            io.to(player.roomID).emit('display_card', (data));
-            addPoints();
+
+            if (trickNumber === 0 && player.declarations.length > 0) {
+                var messageData = {
+                    message: "",
+                    player: player
+                };
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                        game.team1.roundDeclarations.push("Belote");
+                    } else {
+                        game.team2.roundDeclarations.push("Belote");
+                    }
+                    messageData.message += "Belote ";
+                }
+
+                // TODO: Check for declarations
+                io.to(player.socketID).emit('ask_for_declarations', player);
+
+                socket.once('send_declarations', (declarations) => {
+                    if (declarations.length !== 0) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push(...declarations[0].split(' '));
+                        } else {
+                            game.team2.roundDeclarations.push(...declarations[0].split(' '));
+                        }
+                        for (const word of declarations[0].split(' ')) {
+                            messageData.message += word + ' ';
+                        }
+                    }
+
+                    io.to(player.roomID).emit('display_message', (messageData));
+                    io.to(player.roomID).emit('display_card', (data));
+                    addPoints();
+                });
+            } else {
+                if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                    var messageData = {
+                        message: "Belote",
+                        player: player
+                    };
+                    if (data.card.suit === requestedSuit && beloteCheck(data.card, player.hand)) {
+                        if (game.team1.player1.socketID === player.socketID || game.team1.player2.socketID === player.socketID) {
+                            game.team1.roundDeclarations.push("Belote");
+                        } else {
+                            game.team2.roundDeclarations.push("Belote");
+                        }
+                    }
+                    io.to(player.roomID).emit('display_message', (messageData));
+                }
+                io.to(player.roomID).emit('display_card', (data));
+                addPoints();
+            }
+
+
         });
     }
 
@@ -574,8 +787,12 @@ const startTrick = (game, io, trickNumber) => {
         const roundPoints = cardLibrary.countPoins(cardsPlayed);
         if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
             game.team1.roundPoints += roundPoints;
+            game.team1.hasTakenHand = true;
+            console.log("t1 gets points: ", roundPoints)
         } else {
             game.team2.roundPoints += roundPoints;
+            game.team2.hasTakenHand = true;
+            console.log("t2 gets points: ", roundPoints)
         }
         endTrick();
     }
@@ -608,10 +825,13 @@ const startTrick = (game, io, trickNumber) => {
         } else {
             if (game.team1.player1.socketID === currentTaker.socketID || game.team1.player2.socketID === currentTaker.socketID) {
                 game.team1.roundPoints += 10;
+                console.log("t1 last 10")
             } else {
                 game.team2.roundPoints += 10;
+                console.log("t2 last 10")
             }
             var roundResult = calculatePoints(game);
+            console.log("roundResult: ", roundResult);
 
             if (roundResult.hangingPoints === 0) {
                 roundResult.winners.totalPoints += game.hangingPoints;
@@ -620,11 +840,22 @@ const startTrick = (game, io, trickNumber) => {
                 game.hangingPoints += roundResult.hangingPoints;
             }
 
-            if(roundResult.isValat){
+            if (roundResult.isValat) {
                 game.lastRoundWasValat = true;
-            }else{
+            } else {
                 game.lastRoundWasValat = false;
             }
+
+            game.team1.roundDeclarations = [];
+            game.team2.roundDeclarations = [];
+            game.team1.roundPoints = 0;
+            game.team2.roundPoints = 0;
+            game.team1.hasTakenHand = false;
+            for (const player of game.room.players) {
+                player.declarations = [];
+            }
+
+            console.log("ending game: ", game);
             setTimeout(() => {
                 io.to(game.room.roomID).emit('end_round', game);
             }, 3000);
@@ -635,7 +866,7 @@ const startTrick = (game, io, trickNumber) => {
 const calculatePoints = (game) => {
     var bidTeam = null;
     var otherTeam = null;
-    var declarationPoints = 0;
+    var declarationPoints = calculateDeclarationPoints(game);
     var roundResult = {
         winners: null,
         hangingPoints: 0,
@@ -660,7 +891,8 @@ const calculatePoints = (game) => {
     }
 
     if (bidTeam.roundPoints > totalRoundScore / 2) {
-        if (bidTeam.roundPoints !== totalRoundScore) {
+        console.log("izkarana igra")
+        if (otherTeam.hasTakenHand) {
             if (game.roundMultiplier !== 1) {
                 switch (game.roundBid) {
                     case "No Trumps":
@@ -690,6 +922,7 @@ const calculatePoints = (game) => {
                 }
             }
         } else {
+            console.log("valat")
             bidTeam.roundPoints += 90;
             roundResult.isValat = true;
         }
@@ -737,7 +970,8 @@ const calculatePoints = (game) => {
         roundResult.hangingPoints = hangingPoints;
 
     } else if (bidTeam.roundPoints < totalRoundScore / 2) {
-        if (bidTeam.roundPoints !== 0) {
+        console.log("vutre igra")
+        if (bidTeam.hasTakenHand) {
             if (game.roundMultiplier !== 1) {
                 switch (game.roundBid) {
                     case "No Trumps":
@@ -767,6 +1001,7 @@ const calculatePoints = (game) => {
                 }
             }
         } else {
+            console.log("valat")
             totalRoundScore += 90;
             roundResult.isValat = true;
         }
@@ -846,6 +1081,293 @@ const calculatePoints = (game) => {
     bidTeam.roundPoints = 0;
     otherTeam.roundPoints = 0;
     return roundResult;
+}
+
+const beloteCheck = (card, hand) => {
+    // Check if the card is a king or queen
+    if ((card.rank === 'King' || card.rank === 'Queen') && card.isTrump) {
+        // Find the other card (King or Queen) of the same suit
+        const otherCard = hand.find(c => (c.rank === 'King' || c.rank === 'Queen') && c.rank !== card.rank && c.suit === card.suit);
+
+        // If other card of same suit is found, return true
+        if (otherCard) {
+            return true;
+        }
+    }
+
+    // Return false if the conditions are not met
+    return false;
+};
+
+const detectDeclarations = (player, gameBid) => {
+    if (gameBid === 'No Trumps') {
+        return;
+    }
+
+    var kareCombination = "";
+    const ranksCount = {};
+
+    // Count the number of cards for each rank in the player's hand
+    for (const card of player.hand) {
+        // Exclude cards with ranks 7 or 8
+        if (card.rank !== "7" && card.rank !== "8") {
+            if (ranksCount[card.rank]) {
+                ranksCount[card.rank]++;
+            } else {
+                ranksCount[card.rank] = 1;
+            }
+        }
+    }
+
+    // Check if there is a four of a kind
+    for (const rank in ranksCount) {
+        if (ranksCount[rank] === 4) {
+            kareCombination += "Kare";
+            kareCombination += rank;
+            kareCombination += " ";
+            break;
+        }
+    }
+
+    if (kareCombination !== "") {
+        const nonKareCards = player.hand.filter(card => ranksCount[card.rank] !== 4);
+        let longestStraightFlushAfterKare = '';
+
+        for (const suit of cardLibrary.suits) {
+            const suitCards = nonKareCards.filter(card => card.suit === suit);
+            if (suitCards.length < 3) continue;
+
+            suitCards.sort((a, b) => cardLibrary.ranks.indexOf(a.rank) - cardLibrary.ranks.indexOf(b.rank));
+
+            let currentLength = 1;
+            let maxLength = 1;
+            let currentSF = '';
+            let highestRank = '';
+
+            for (let i = 1; i < suitCards.length; i++) {
+                const currentRankIndex = cardLibrary.ranks.indexOf(suitCards[i].rank);
+                const prevRankIndex = cardLibrary.ranks.indexOf(suitCards[i - 1].rank);
+
+                if (currentRankIndex === prevRankIndex + 1) {
+                    currentLength++;
+                    if (currentLength >= 3) {
+                        if (currentLength > maxLength) {
+                            maxLength = currentLength;
+                            highestRank = suitCards[i].rank;
+                            currentSF = `SF${maxLength}${highestRank}`;
+                        }
+                    }
+                } else {
+                    currentLength = 1;
+                }
+            }
+
+            if (maxLength >= 3 && currentSF.length > longestStraightFlushAfterKare.length) {
+                longestStraightFlushAfterKare = currentSF;
+            }
+        }
+
+        kareCombination += longestStraightFlushAfterKare;
+    }
+
+    let sfCombination = "";
+
+    for (const suit of cardLibrary.suits) {
+        const suitCards = player.hand.filter(card => card.suit === suit);
+        if (suitCards.length < 3) continue;
+
+        suitCards.sort((a, b) => cardLibrary.ranks.indexOf(a.rank) - cardLibrary.ranks.indexOf(b.rank));
+
+        let currentLength = 1;
+        let maxLength = 1;
+        let currentSF = '';
+        let highestRank = '';
+
+        for (let i = 1; i < suitCards.length; i++) {
+            const currentRankIndex = cardLibrary.ranks.indexOf(suitCards[i].rank);
+            const prevRankIndex = cardLibrary.ranks.indexOf(suitCards[i - 1].rank);
+
+            if (currentRankIndex === prevRankIndex + 1) {
+                currentLength++;
+                if (currentLength >= 3) {
+                    if (currentLength >= 5 && currentLength <= 7) {
+                        maxLength = 5;
+                    } else if (currentLength === 8) {
+                        sfCombination += `SF5Ace SF3Nine`;
+                        maxLength = 0;
+                        break;
+                    } else {
+                        maxLength = currentLength;
+                    }
+                    highestRank = suitCards[i].rank;
+
+                    currentSF = `SF${maxLength}${highestRank}`;
+
+                    if (i === suitCards.length - 1) {
+                        sfCombination += currentSF + " ";  
+                    }
+                }
+            } else if (currentRankIndex !== prevRankIndex) {
+                if (currentLength >= 3) {
+                    sfCombination += currentSF + " ";
+                }
+                currentLength = 1;
+            }
+        }
+    }
+
+
+    if (kareCombination !== "") {
+        player.declarations.push(kareCombination);
+    }
+
+    if (sfCombination !== "") {
+        player.declarations.push(sfCombination);
+    }
+}
+
+const calculateDeclarationPoints = (game) => {
+    var totalPoints = 0;
+    game.team1.roundDeclarations = game.team1.roundDeclarations.filter(declaration => declaration !== '');
+    game.team2.roundDeclarations = game.team2.roundDeclarations.filter(declaration => declaration !== '');
+
+    let teamWithLargestKare = null;
+    let teamWithLargestSF = null;
+
+    // Function to compare two cards based on their ranks
+    const compareCards = (card1, card2) => {
+        const rankIndex1 = cardLibrary.ranks.indexOf(card1);
+        const rankIndex2 = cardLibrary.ranks.indexOf(card2);
+        return rankIndex2 - rankIndex1;
+    };
+
+    // Function to find the larger Kare in a team's roundDeclarations array
+    const findLargerKare = (declarations) => {
+        let largerKare = null;
+        for (const declaration of declarations) {
+            if (declaration.includes('Kare')) {
+                const kareRank = declaration.substr(4); // Extract rank from declaration string
+                if (!largerKare || compareCards(kareRank, largerKare.substr(4)) > 0) {
+                    largerKare = declaration;
+                }
+            }
+        }
+        return largerKare;
+    };
+
+    // Function to find the larger SF declaration in a team's roundDeclarations array
+    const findLargerSF = (declarations) => {
+        let largerSF = null;
+        for (const declaration of declarations) {
+            if (declaration.includes('SF')) {
+                const sfLength = parseInt(declaration[2]); // Get length from declaration string
+                const sfValue = declaration.substr(3); // Extract value from declaration string
+                if (!largerSF ||
+                    sfLength > parseInt(largerSF[2]) ||
+                    (sfLength === parseInt(largerSF[2]) && compareCards(sfValue, largerSF.substr(3)) > 0)) {
+                    largerSF = declaration;
+                }
+            }
+        }
+        return largerSF;
+    };
+
+    // Find larger Kare in both teams' declarations
+    const team1LargerKare = findLargerKare(game.team1.roundDeclarations);
+    const team2LargerKare = findLargerKare(game.team2.roundDeclarations);
+
+    // Find larger SF declarations in both teams' declarations
+    const team1LargerSF = findLargerSF(game.team1.roundDeclarations);
+    const team2LargerSF = findLargerSF(game.team2.roundDeclarations);
+
+    // Compare the larger Kares from both teams and update teamWithLargestKare accordingly
+    if (team1LargerKare && !team2LargerKare) {
+        teamWithLargestKare = game.team1;
+        console.log("t1 s kare");
+    } else if (team2LargerKare && !team1LargerKare) {
+        teamWithLargestKare = game.team2;
+        console.log("t2 s kare");
+    } else if (team1LargerKare && team2LargerKare) {
+        const comparisonResult = compareCards(team1LargerKare.substr(4), team2LargerKare.substr(4));
+        if (comparisonResult > 0) {
+            teamWithLargestKare = game.team1;
+            console.log("t1 s kare");
+        } else if (comparisonResult < 0) {
+            teamWithLargestKare = game.team2;
+            console.log("t2 s kare");
+        }
+    }
+
+    // Compare the larger SF declarations from both teams and update teamWithLargestSF accordingly
+    if (team1LargerSF && !team2LargerSF) {
+        teamWithLargestSF = game.team1;
+        console.log("t1 s sf")
+    } else if (team2LargerSF && !team1LargerSF) {
+        teamWithLargestSF = game.team2;
+        console.log("t2 s sf")
+    } else if (team1LargerSF && team2LargerSF) {
+        const lengthComparison = parseInt(team1LargerSF[2]) - parseInt(team2LargerSF[2]);
+        if (lengthComparison > 0 || (lengthComparison === 0 && compareCards(team1LargerSF.substr(3), team2LargerSF.substr(3)) > 0)) {
+            teamWithLargestSF = game.team1;
+            console.log("t1 s sf")
+        } else if (lengthComparison < 0 || (lengthComparison === 0 && compareCards(team1LargerSF.substr(3), team2LargerSF.substr(3)) < 0)) {
+            teamWithLargestSF = game.team2;
+            console.log("t2 s sf")
+        }
+    }
+
+    // If a team has the largest Kare, process its roundDeclarations and add points accordingly
+    if (teamWithLargestKare) {
+        for (const declaration of teamWithLargestKare.roundDeclarations) {
+            if (declaration.includes('Kare')) {
+                const kareRank = declaration.substr(4); // Extract rank from declaration string
+                let declarationValue = 100; // Default value for all ranks other than Jack and 9
+                if (kareRank === 'Jack') {
+                    declarationValue = 200;
+                } else if (kareRank === '9') {
+                    declarationValue = 150;
+                }
+                teamWithLargestKare.roundPoints += declarationValue;
+                totalPoints += declarationValue;
+                console.log("dobavqne na kare tochki:", declarationValue);
+            }
+        }
+    }
+
+    // Process points for the team with the largest SF
+    if (teamWithLargestSF) {
+        for (const declaration of teamWithLargestSF.roundDeclarations) {
+            if (declaration.includes('SF')) {
+                const sfLength = parseInt(declaration[2]); // Get length from declaration string
+                let declarationValue = 0;
+                if (sfLength === 3) {
+                    declarationValue = 20;
+                    console.log("terca")
+                } else if (sfLength === 4) {
+                    declarationValue = 50;
+                    console.log("50")
+                } else if (sfLength === 5) {
+                    declarationValue = 100;
+                    console.log("100")
+                }
+                teamWithLargestSF.roundPoints += declarationValue;
+                totalPoints += declarationValue;
+            }
+        }
+    }
+
+    // Process points for Belote declarations
+    for (const team of [game.team1, game.team2]) {
+        for (const declaration of team.roundDeclarations) {
+            if (declaration === 'Belote') {
+                team.roundPoints += 20;
+                totalPoints += 20;
+                console.log("belote");
+            }
+        }
+    }
+
+    return totalPoints;
 }
 
 const setTrickTurns = (game, currentTaker) => {
