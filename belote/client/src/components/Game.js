@@ -332,76 +332,76 @@ class Game extends Component {
     }
 
     handleDisplayMessage = (messageInfo) => {
-        if(messageInfo.player.socketID === this.state.me.socketID){
-            this.setState({
-                ...this.state,
+        if (messageInfo.player.socketID === this.state.me.socketID) {
+            this.setState((prevState) => ({
                 messageInfo: {
-                    ...this.state.messageInfo,
+                    ...prevState.messageInfo,
                     meMessage: messageInfo.message
                 }
-            }, () => {
+            }), () => {
                 setTimeout(() => {
-                    this.setState({
-                        ...this.state,
+                    this.setState((prevState) => ({
                         messageInfo: {
-                            meMessage: null,
+                            ...prevState.messageInfo,
+                            meMessage: null
                         }
-                    });
+                    }));
                 }, 3000);
             });
-        }else if(messageInfo.player.socketID === this.state.partner.socketID){
-            this.setState({
-                ...this.state,
+        }
+        if (messageInfo.player.socketID === this.state.partner.socketID) {
+            this.setState((prevState) => ({
                 messageInfo: {
-                    ...this.state.messageInfo,
+                    ...prevState.messageInfo,
                     partnerMessage: messageInfo.message
                 }
-            }, () => {
+            }), () => {
                 setTimeout(() => {
-                    this.setState({
-                        ...this.state,
+                    this.setState((prevState) => ({
                         messageInfo: {
-                            partnerMessage: null,
+                            ...prevState.messageInfo,
+                            partnerMessage: null
                         }
-                    });
+                    }));
                 }, 3000);
             });
-        }else if(messageInfo.player.socketID === this.state.opponentR.socketID){
-            this.setState({
-                ...this.state,
+        }
+        if (messageInfo.player.socketID === this.state.opponentR.socketID) {
+            this.setState((prevState) => ({
                 messageInfo: {
-                    ...this.state.messageInfo,
+                    ...prevState.messageInfo,
                     opponentRMessage: messageInfo.message
                 }
-            }, () => {
+            }), () => {
                 setTimeout(() => {
-                    this.setState({
-                        ...this.state,
+                    this.setState((prevState) => ({
                         messageInfo: {
-                            opponentRMessage: null,
+                            ...prevState.messageInfo,
+                            opponentRMessage: null
                         }
-                    });
+                    }));
                 }, 3000);
             });
-        }else if(messageInfo.player.socketID === this.state.opponentL.socketID){
-            this.setState({
-                ...this.state,
+        }
+        if (messageInfo.player.socketID === this.state.opponentL.socketID) {
+            this.setState((prevState) => ({
                 messageInfo: {
-                    ...this.state.messageInfo,
+                    ...prevState.messageInfo,
                     opponentLMessage: messageInfo.message
                 }
-            }, () => {
+            }), () => {
                 setTimeout(() => {
-                    this.setState({
-                        ...this.state,
+                    this.setState((prevState) => ({
                         messageInfo: {
-                            opponentLMessage: null,
+                            ...prevState.messageInfo,
+                            opponentLMessage: null
                         }
-                    });
+                    }));
                 }, 3000);
             });
         }
     }
+    
 
     playCard(card) {
         socket.emit(`t${this.state.me.trickTurn}_play_card`, card, this.state.me);
